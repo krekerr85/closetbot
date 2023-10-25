@@ -1,4 +1,5 @@
 export enum UserEnum {
-  Sawing = "Sawing",
+  Sawing = 795779725,
   Door = "Roor",
+  Watcher = 6637928149,
 }

@@ -2,16 +2,12 @@ import {
   InlineKeyboardButton,
   Update,
 } from "telegraf/typings/core/types/typegram";
-import { TOrder } from "../types/orderType";
+import { TOrder, TOrderDTO } from "../types/orderType";
 import { Context, Telegraf } from "telegraf";
 import { TUser } from "../types/userType";
 import fs from "fs";
-import { OrderService } from "../services/botServices/orderService";
+import { OrderService } from "../services/botServices/order.service";
 import { Types } from "mongoose";
-export type TState = {
-  acceptedActive: boolean;
-  readyActive: boolean;
-};
 
 export class UserOrder {
   private user;
@@ -20,15 +16,7 @@ export class UserOrder {
   private readonly orderService;
   private readonly orderWatcherId;
   constructor(
-    order: Omit<
-      TOrder,
-      | "firstName"
-      | "lastName"
-      | "userId"
-      | "accepted"
-      | "ready"
-      | "orderWatcherId"
-    >,
+    order: TOrderDTO,
     user: TUser,
     bot: Telegraf<Context<Update>>,
     orderWatcherId: Types.ObjectId
@@ -43,14 +31,14 @@ export class UserOrder {
 
   async createOrder() {
     const {
-      orderNum,
-      closetName,
+      order_num,
+      closet_name,
       comment,
       file1Path,
       file1Name,
       file2Path,
       file2Name,
-      dateCreated,
+      date_created,
     } = this.order;
 
     const file1Data = fs.createReadStream(file1Path);
@@ -63,7 +51,7 @@ export class UserOrder {
       ];
       const keyboard: InlineKeyboardButton[][] = [[...buttons]];
       // Отправить два файла в одном сообщении с общим комментарием и кнопками
-      await this.bot.telegram.sendMediaGroup(this.user.userId, [
+      await this.bot.telegram.sendMediaGroup(this.user.user_id, [
         {
           media: { source: file1Data, filename: file1Name },
           type: "document",
@@ -74,8 +62,8 @@ export class UserOrder {
         },
       ]);
       const message = await this.bot.telegram.sendMessage(
-        this.user.userId,
-        closetName,
+        this.user.user_id,
+        closet_name,
         {
           reply_markup: {
             inline_keyboard: keyboard,
@@ -84,23 +72,22 @@ export class UserOrder {
       );
 
       const newOrder: TOrder = {
-        orderNum,
-        closetName,
+        order_num,
+        closet_name,
         comment,
         file1Path,
         file1Name,
         file2Path,
         file2Name,
-        dateCreated,
+        date_created,
         accepted: false,
         ready: false,
-        userId: message.chat.id,
-        messageId: message.message_id,
+        user_id: message.chat.id,
+        message_id: message.message_id,
         // @ts-ignore
-        firstName: message.chat!.first_name,
+        first_name: message.chat!.first_name,
         // @ts-ignore
-        lastName: message.chat!.last_name!,
-        orderWatcherId: this.orderWatcherId,
+        order_watcher_id: this.orderWatcherId,
       };
       await this.orderService.createOrder(newOrder);
     } catch (e) {

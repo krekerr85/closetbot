@@ -10,8 +10,7 @@ export class UserService {
     }
   }
 
-  async getUserInfo(userId: Number) {
-    const res = await UserModel.findOne({ userId });
-    return res;
+  async getUserInfo(user_id: Number) {
+    return  await UserModel.findOne({ user_id });
   }
 }

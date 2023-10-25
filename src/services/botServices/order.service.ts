@@ -10,13 +10,13 @@ export class OrderService {
     }
   }
 
-  async getOrderByOrderId(messageId: Number) {
-    return await OrderModel.findOne({ messageId });
+  async getOrderByOrderId(message_id: Number) {
+    return await OrderModel.findOne({ message_id });
   }
 
-  async updateOrder(messageId: number, order: TOrder) {
+  async updateOrder(message_id: number, order: TOrder) {
     return await OrderModel.updateOne(
-      { messageId }, // Указываем фильтр для поиска документа по его ObjectId
+      { message_id }, // Указываем фильтр для поиска документа по его ObjectId
       { $set: order } // Устанавливаем новые данные с помощью оператора $set
     );
   }

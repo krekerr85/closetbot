@@ -2,24 +2,34 @@ import { Types } from "mongoose";
 import { UserOrder } from "../classes/UserOrder";
 
 export type TOrder = {
-  messageId: number;
-  userId: number;
-  firstName: string;
-  lastName: string;
-  orderNum: string;
-  closetName: string;
+  message_id: number;
+  user_id: number;
+  first_name: string;
+  order_num: number;
+  closet_name: string;
   comment: string;
   accepted: boolean;
-  acceptedDate?: string;
+  accepted_date?: string;
   ready: boolean;
-  readyDate?: string;
+  ready_date?: string;
   file1Path: string;
   file1Name: string;
   file2Path: string;
   file2Name: string;
-  dateCreated: Date;
-  orderWatcherId: Types.ObjectId;
+  date_created: Date;
+  order_watcher_id: Types.ObjectId;
 };
+
+export type TOrderDTO = {
+    order_num: number;
+    closet_name: string;
+    comment: string;
+    file1Path: string;
+    file1Name: string;
+    file2Path: string;
+    file2Name: string;
+    date_created: Date;
+}
 
 export type UserHashTable = {
   [key: string]: UserOrder;

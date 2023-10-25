@@ -6,13 +6,10 @@ const userSchema = new Schema({
     type: String,
     unique: true,
   },
-  userId: Number,
+  user_id: Number,
   first_name: String,
   last_name: String,
-  language_code: String,
-  is_bot: Boolean,
-  dateCreated: { type: Date, default: Date.now },
-  dateMessage: Date,
+  date_created: { type: Date, default: Date.now },
 });
 
 export const UserModel = mongoose.model("User", userSchema);
