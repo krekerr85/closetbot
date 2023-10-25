@@ -2,11 +2,14 @@ import mongoose from "mongoose";
 const { Schema } = mongoose;
 
 const orderWatcherSchema = new Schema({
-  id: Number,
+  userId: Number,
   firstName: String,
   lastName: String,
-  fullOrder: Array<String>,
+  messageId: Number,
   dateCreated: { type: Date, default: Date.now },
 });
 
-export const OrderWatcherModel = mongoose.model("OrderWatcher", orderWatcherSchema);
+export const OrderWatcherModel = mongoose.model(
+  "OrderWatcher",
+  orderWatcherSchema
+);

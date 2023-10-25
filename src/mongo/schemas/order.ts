@@ -1,20 +1,27 @@
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 const { Schema } = mongoose;
 
 const orderSchema = new Schema({
-  id: Number,
+  userId: Number,
   firstName: String,
   lastName: String,
-  orderId: Number,
+  messageId: Number,
   orderNum: String,
   closetName: String,
   comment: String,
   accepted: Boolean,
+  acceptedDate: String,
   ready: Boolean,
+  readyDate: String,
   file1Path: String,
   file1Name: String,
   file2Path: String,
   file2Name: String,
+  orderWatcherId: {
+    type: Types.ObjectId,
+    ref: "OrderWatcher",
+    required: true, // Указываем на модель, к которой принадлежит данный ObjectId
+  },
   dateCreated: { type: Date, default: Date.now },
 });
 

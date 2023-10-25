@@ -1,12 +1,12 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 const { Schema } = mongoose;
 
 const userSchema = new Schema({
   username: {
     type: String,
-    unique: true
-  }, // String is shorthand for {type: String}
-  id: Number,
+    unique: true,
+  },
+  userId: Number,
   first_name: String,
   last_name: String,
   language_code: String,
@@ -15,4 +15,4 @@ const userSchema = new Schema({
   dateMessage: Date,
 });
 
-export const UserModel = mongoose.model('User', userSchema);
+export const UserModel = mongoose.model("User", userSchema);

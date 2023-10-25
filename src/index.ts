@@ -19,13 +19,13 @@ async function init() {
 
   app.use(
     await telegramBot.bot.createWebhook({
-      domain: "https://4616-109-195-147-205.ngrok.io",
+      domain: "https://bd69-109-195-147-205.ngrok.io",
     })
   );
 
   app.post("/create-order", async (req, res) => {
     const {
-      orderId,
+      messageId,
       orderNum,
       closetName,
       comment,
@@ -34,8 +34,16 @@ async function init() {
       file2Path,
       file2Name,
     } = req.body;
-    const order: Omit<TOrder, "firstName" | "lastName" | "id" | "accepted" | "ready"> = {
-      orderId,
+    const order: Omit<
+      TOrder,
+      | "firstName"
+      | "lastName"
+      | "userId"
+      | "accepted"
+      | "ready"
+      | "orderWatcherId"
+    > = {
+      messageId,
       orderNum,
       closetName,
       comment,
