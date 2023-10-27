@@ -1,5 +1,5 @@
 import { Types } from "mongoose";
-import { UserOrder } from "../classes/UserOrder";
+
 
 export type OrderT = {
   message_id: number;
@@ -29,9 +29,7 @@ export type OrderDTO = {
     date_created: Date;
 }
 
-export type UserHashTable = {
-  [key: string]: UserOrder;
-};
+
 
 export type OrderMessageT = {
     title: string;

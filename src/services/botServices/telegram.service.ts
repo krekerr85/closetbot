@@ -1,4 +1,4 @@
-import { UserOrder } from "../../classes/UserOrder";
+
 import { OrderT, OrderDTO } from "../../types/orderType";
 import { OrderService } from "./order.service";
 import { OrderWatcherModel } from "../../mongo/schemas/order_watcher.model";
@@ -12,7 +12,6 @@ export class TelegramService {
   private readonly bot;
   private readonly orderService;
   private readonly orderWatcherService;
-  public readonly usersOrders: UserOrder[] = [];
   constructor(bot: botT) {
     this.bot = bot;
     this.orderService = new OrderService();
