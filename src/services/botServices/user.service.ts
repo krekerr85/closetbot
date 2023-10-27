@@ -1,4 +1,4 @@
-import { UserModel } from "../../mongo/schemas/user";
+import { UserModel } from "../../mongo/schemas/user.model";
 import { TUser } from "../../types/userType";
 
 export class UserService {

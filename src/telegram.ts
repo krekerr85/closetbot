@@ -1,20 +1,21 @@
 import { Telegraf } from "telegraf";
 import { UserService } from "./services/botServices/user.service";
-import { TOrderDTO } from "./types/orderType";
+import { OrderDTO } from "./types/orderType";
 import { TUser } from "./types/userType";
-import { OrderWatcherService } from "./services/botServices/orderWatcher.service";
+import { TelegramService } from "./services/botServices/telegram.service";
+
 
 export class TelegramBot {
   readonly bot;
   private readonly userService;
-  private readonly orderWatcherService;
+  private readonly telegramService;
 
   constructor(telegram_token: string) {
     this.bot = new Telegraf(telegram_token);
     this.bot.launch();
 
     this.userService = new UserService();
-    this.orderWatcherService = new OrderWatcherService(this.bot);
+    this.telegramService = new TelegramService(this.bot);
 
     this.init();
   }
@@ -30,13 +31,13 @@ export class TelegramBot {
     });
 
     this.bot.on("callback_query", async (ctx) => {
-      await this.orderWatcherService.updateState(ctx);
+      await this.telegramService.updateState(ctx);
     });
   }
 
-  async createOrders(order: TOrderDTO) {
+  async createOrders(order: OrderDTO) {
     try {
-      this.orderWatcherService.createOrder(order);
+      this.telegramService.createOrder(order);
     } catch (e) {
       console.log(e);
     }

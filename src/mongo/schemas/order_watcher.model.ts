@@ -1,13 +1,12 @@
 import mongoose from "mongoose";
 const { Schema } = mongoose;
-
 const orderWatcherSchema = new Schema({
-  user_id: {
-    type: Number,
+  closet_name:  {
+    type: String,
     required: true
   },
-  first_name: {
-    type: String,
+  user_id: {
+    type: Number,
     required: true
   },
   last_name: String,
@@ -15,6 +14,10 @@ const orderWatcherSchema = new Schema({
     type: Number,
     required: true
   },
+  sawingMessage: {
+    type : Object,
+  },
+  doorMessage: Object,
   date_created: { type: Date, default: Date.now },
 });
 

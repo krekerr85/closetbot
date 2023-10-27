@@ -6,26 +6,47 @@ const orderSchema = new Schema({
     type : Number,
     required : true,
   },
-  first_name: {
-    type : String,
-    required : true,
-  },
   message_id: {
     type : Number,
     required : true,
   },
-
-  order_num: Number,
-  closet_name: String,
+  closet_name: {
+    type : String,
+    required : true,
+  },
+  order_num: {
+    type : Number,
+    required : true,
+  },
+  file1_path: {
+    type : String,
+    required : true,
+  },
+  file1_name: {
+    type : String,
+    required : true,
+  },
+  file2_path: {
+    type : String,
+    required : true,
+  },
+  file2_name: {
+    type : String,
+    required : true,
+  },
   comment: String,
-  accepted: Boolean,
-  accepted_date: String,
-  ready: Boolean,
-  readyDate: String,
-  file1Path: String,
-  file1Name: String,
-  file2Path: String,
-  file2Name: String,
+  accepted_date: {
+    type: Date,
+    default: null,
+  },
+  ready_date: {
+    type: Date,
+    default: null,
+  },
+  order_type: {
+    type : String,
+    required : true,
+  },
   order_watcher_id: {
     type: Types.ObjectId,
     ref: "OrderWatcher",

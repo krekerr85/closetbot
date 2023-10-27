@@ -2,50 +2,46 @@ import bodyParser from "body-parser";
 import "dotenv/config";
 import express from "express";
 import { TelegramBot } from "./telegram";
-import { TOrder, TOrderDTO } from "./types/orderType";
-import mongoose from "mongoose";
-
+import {OrderDTO } from "./types/orderType";
+import passport from 'passport';
+import {connectDB} from './mongo/db';
+import authRoutes from './controllers/auth.controller';
+import orderApiRoutes from './controllers/order.controller';
 
 const app = express();
+connectDB();
+app.use(express.json());
+app.use(passport.initialize());
+
+app.use('/auth', authRoutes);
+
+app.use('/api/auth', orderApiRoutes);
 app.use(bodyParser.json());
 
 async function init() {
-  await mongoose.connect(process.env.MONGO_DB!);
+  
   const telegramBot = new TelegramBot(process.env.TELEGRAM_TOKEN!);
 
-  // app.use(
-  //   await telegramBot.bot.createWebhook({
-  //     domain: "https://bd69-109-195-147-205.ngrok.io",
-  //   })
-  // );
-  // app.use((req, res, next) => {
-  //   res.status(404).json({ error: "Not Found" });
-  // });
-  
-  // // Middleware для обработки ошибок 500
-  // app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
-  //   res.status(500).json({ error: "Internal Server Error" });
-  // });
 
   app.post("/create-order", async (req, res) => {
     const {
       order_num,
       closet_name,
       comment,
-      file1Path,
-      file1Name,
-      file2Path,
-      file2Name,
+      file1_path,
+      file1_name,
+      file2_path,
+      file2_name,
     } = req.body;
     const order: 
-    TOrderDTO = {
+    OrderDTO = {
       order_num,
       closet_name,
       comment,
-      file1Path,
-      file1Name,
-      file2Path,
-      file2Name,
+      file1_path,
+      file1_name,
+      file2_path,
+      file2_name,
       date_created: new Date(),
     };
 
