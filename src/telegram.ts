@@ -35,9 +35,12 @@ export class TelegramBot {
     });
   }
 
-  async createOrders(order: OrderDTO) {
+  async createOrders(orders: OrderDTO[]) {
     try {
-      this.telegramService.createOrder(order);
+      for (const order of orders){
+        await this.telegramService.createOrder(order);
+      }
+      
     } catch (e) {
       console.log(e);
     }

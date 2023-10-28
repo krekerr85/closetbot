@@ -1,4 +1,3 @@
-
 import { OrderT, OrderDTO } from "../../types/orderType";
 import { OrderService } from "./order.service";
 import { OrderWatcherModel } from "../../mongo/schemas/order_watcher.model";
@@ -7,6 +6,7 @@ import { OrderWatcherT } from "../../types/orderWatcherType";
 import { getFormattedDate } from "../../utils/functions";
 import { botT, ctxT } from "../../types/telegramType";
 import { OrderWatcherService } from "./orderWatcher.service";
+import { OrderEnum } from "../../Enums/OrderEnum";
 
 export class TelegramService {
   private readonly bot;
@@ -25,18 +25,23 @@ export class TelegramService {
         order.closet_name,
         UserEnum.Sawing
       );
-    if (!orderWatcherDocument) {
-      return;
-    }
+
     const { _id } = orderWatcherDocument;
     this.orderService.createOrder(
       this.bot,
-      order,
       UserEnum.Sawing,
+      order,
       _id,
-      "sawing"
+      OrderEnum.Sawing
     );
-    this.orderService.createOrder(this.bot, order, UserEnum.Door, _id, "door");
+
+    this.orderService.createOrder(
+      this.bot, 
+      UserEnum.Door, 
+      order, 
+      _id, 
+      OrderEnum.Door,
+    );
   }
 
   async updateState(ctx: ctxT) {
@@ -47,10 +52,6 @@ export class TelegramService {
       message_id
     ))!.toObject();
 
-    if (!order) {
-      return;
-    }
-
     const orderWatcherDocument = await OrderWatcherModel.findOne({
       _id: order.order_watcher_id,
     });
@@ -60,8 +61,8 @@ export class TelegramService {
     }
     const orderWatcher: OrderWatcherT = orderWatcherDocument.toObject();
     const res = await this.updateOrderState(ctx, order);
-    if (!res){
-        return;
+    if (!res) {
+      return;
     }
     await this.updateWatcherState(orderWatcher, order, data);
   }
@@ -72,7 +73,7 @@ export class TelegramService {
     const updatedButtons =
       // @ts-ignore
       ctx.update.callback_query.message!.reply_markup!.inline_keyboard[0];
-    console.log(order.accepted_date)
+
     if (data === "accepted") {
       if (!order.accepted_date) {
         order.accepted_date = new Date();
@@ -118,8 +119,8 @@ export class TelegramService {
           accepted: order.accepted_date
             ? `✅ ${getFormattedDate(order.accepted_date)}`
             : `❎`,
-          ready:  order.accepted_date ? sawingMessage.ready :  `❎`
-        }
+          ready: order.accepted_date ? sawingMessage.ready : `❎`,
+        };
       } else if (data === "ready") {
         sawingMessage = {
           title: orderWatcher.closet_name,
@@ -138,7 +139,7 @@ export class TelegramService {
           accepted: order.accepted_date
             ? `✅ ${getFormattedDate(order.accepted_date)}`
             : `❎`,
-          ready:  order.accepted_date ? doorMessage.ready :  `❎`
+          ready: order.accepted_date ? doorMessage.ready : `❎`,
         };
       } else if (data === "ready") {
         doorMessage = {

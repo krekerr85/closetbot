@@ -1,6 +1,6 @@
 export  function getFormattedDate(date: Date | undefined) {
     if (!date){
-        return undefined;
+        return null;
     }
 
     const year = date.getFullYear().toString().slice(-2); // Получаем последние две цифры года

@@ -5,6 +5,7 @@ import { InlineKeyboardButton } from "telegraf/typings/core/types/typegram";
 import { botT } from "../../types/telegramType";
 import { Types } from "mongoose";
 import { UserEnum } from "../../Enums/UserEnum";
+import { OrderEnum } from "../../Enums/OrderEnum";
 export class OrderService {
   async getOrderByOrderId(message_id: number) {
     return await OrderModel.findOne({ message_id });
@@ -16,10 +17,10 @@ export class OrderService {
 
   async createOrder(
     bot: botT,
-    order: OrderDTO,
     user_id: UserEnum,
+    order: OrderDTO,
     order_watcher_id: Types.ObjectId,
-    order_type: string
+    order_type: OrderEnum,
   ) {
     const {
       order_num,

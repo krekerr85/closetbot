@@ -24,29 +24,12 @@ async function init() {
 
 
   app.post("/create-order", async (req, res) => {
-    const {
-      order_num,
-      closet_name,
-      comment,
-      file1_path,
-      file1_name,
-      file2_path,
-      file2_name,
-    } = req.body;
-    const order: 
-    OrderDTO = {
-      order_num,
-      closet_name,
-      comment,
-      file1_path,
-      file1_name,
-      file2_path,
-      file2_name,
-      date_created: new Date(),
-    };
+
+    const orders: OrderDTO[] = req.body; 
+
 
     try {
-      await telegramBot.createOrders(order);
+      await telegramBot.createOrders(orders);
       res.status(200).json({ message: "Order created successfully" });
     } catch (error) {
       res.status(500).json({ error: "Failed to create order" });

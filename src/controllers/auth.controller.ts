@@ -22,9 +22,6 @@ passport.use(new LocalStrategy.Strategy(async (username, password, done) => {
 
 router.post('/login', passport.authenticate('local', { session: false }), (req, res) => {
     const user = req.user as WebUser;
-    if (!user){
-        return;
-    }
     const token = jwt.sign({ id: user._id }, 'your-secret-key', { expiresIn: '1h' });
     res.json({ token });
 });

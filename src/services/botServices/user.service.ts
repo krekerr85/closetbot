@@ -10,7 +10,7 @@ export class UserService {
     }
   }
 
-  async getUserInfo(user_id: Number) {
+  async getUserInfo(user_id: number) {
     return  await UserModel.findOne({ user_id });
   }
 }
