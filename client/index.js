@@ -85,7 +85,6 @@ sendButton.addEventListener('click', () => {
             console.log(data);
             // Очистить массив orderList после успешной отправки на сервер
             orderList.length = 0;
-           
 
             // Удаляем каждый элемент order_item
             orderItems.forEach((item) => {
@@ -94,10 +93,12 @@ sendButton.addEventListener('click', () => {
 
             notification_send.style.visibility = 'visible';
 
-    // Скрыть уведомление через 2 секунды (2000 миллисекунд)
-    setTimeout(() => {
-        notification_send.style.visibility = 'hidden';
-    }, 1000);
+            // Скрыть уведомление через 2 секунды (2000 миллисекунд)
+            setTimeout(() => {
+                notification_send.style.visibility = 'hidden';
+                // После скрытия уведомления перезагружаем страницу
+                window.location.reload();
+            }, 0);
         })
         .catch((error) => {
             // Обработка ошибок (если необходимо)

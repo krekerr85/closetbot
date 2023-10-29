@@ -1,9 +1,7 @@
 import { SubOrderModel } from "../../mongo/schemas/sub_order.model";
-import { OrderDTO, OrderT, SubOrderT } from "../../types/orderType";
+import { OrderDTO, SubOrderT } from "../../types/orderType";
 import fs from "fs";
-import {
-  InlineKeyboardButton,
-} from "telegraf/typings/core/types/typegram";
+import { InlineKeyboardButton } from "telegraf/typings/core/types/typegram";
 import { botT } from "../../types/telegramType";
 import { Types } from "mongoose";
 import { UserEnum } from "../../Enums/UserEnum";
@@ -12,10 +10,13 @@ import { getFormattedDate } from "../../utils/functions";
 const filesDirectory = path.join(__dirname, "../../../files");
 export class SubOrderService {
   async createSubOrders(bot: botT, order: OrderDTO, order_id: Types.ObjectId) {
-    const { order_num, size, comment, color, door_type} = order;
+    const { size, comment, color, door_type } = order;
 
-    const { file1_path, file1_name, file2_path, file2_name } =
-      await this.getOrderFiles(size, color, door_type);
+    const [file1_path, file1_name, file2_path, file2_name] = await this.getOrderFiles(
+      size,
+      color,
+      door_type
+    );
     const file1Data = fs.createReadStream(file1_path);
 
     const file2Data = fs.createReadStream(file2_path);
@@ -77,17 +78,32 @@ export class SubOrderService {
     await SubOrderModel.create(newSubDoorOrder);
   }
 
-  async getOrderFiles(size: string, color: string, door_type: string) {
-    const fileFindStr = `${size}_${door_type}_${color}`;
-    const filePath = path.join(filesDirectory, `${size}_${door_type}_${color}`);
-    console.log(filePath);
-    // const file1_path, file1_name, file2_path, file2_name
-    return {
-      file1_path: "Сupe 2600 (CPU24).zip",
-      file1_name: "Сupe 2600 (CPU24).zip",
-      file2_path: "Cupe 2600 (3025MX).b3d",
-      file2_name: "Cupe 2600 (3025MX).b3d",
-    };
+  getOrderFiles(
+    size: string,
+    color: string,
+    door_type: string
+  ): Promise<string[]> {
+    const filePath: string = path.join(
+      filesDirectory,
+      `${size}_${door_type}_${color}`
+    );
+    const fileArr: string[] = [];
+    return new Promise((res, rej) => {
+      fs.readdir(filePath, (err, files) => {
+        if (err) {
+          console.error("Ошибка чтения директории:", err);
+          rej();
+        }
+        for (const file of files){
+          fileArr.push(path.join(
+            filePath,
+            file
+          ), 
+            file)
+        }
+        res(fileArr);
+      });
+    });
   }
 
   async updateSubOrder(message_id: number, subOrder: SubOrderT) {
@@ -97,7 +113,7 @@ export class SubOrderService {
   async getSubOrderByMessageId(message_id: number) {
     return await SubOrderModel.findOne({ message_id });
   }
-  async getSubOrdersByOrderId(order_id: Types.ObjectId){
+  async getSubOrdersByOrderId(order_id: Types.ObjectId) {
     return await SubOrderModel.find({ order_id }).sort({ order_type: 1 });
   }
 }
