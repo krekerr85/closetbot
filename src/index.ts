@@ -13,7 +13,7 @@ import imagesRoutes from './controllers/images.controller';
 import path from 'path';
 const imagesDirectory = path.join(
   __dirname,
-  `../files/photos/`
+  `../static/photos/`
 );
 const app = express();
 connectDB();

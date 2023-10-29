@@ -8,18 +8,33 @@
     <body>
         <!-- Это будет грид-контейнер с пятью элементами внутри -->
         <div class="container">
-                <div class="container_head_order_num">№ 1</div>
+                <div class="container_head_order_num">№1</div>
                 <div class="container_head_closet_size">
                     <select class="closet-size-select">
                         <option value="Шкаф 1800">Шкаф 1800</option>
                         <option value="Шкаф 1900">Шкаф 1900</option>
+                        <option value="Шкаф 2000">Шкаф 2000</option>
+                        <option value="Шкаф 2100">Шкаф 2100</option>
+                        <option value="Шкаф 2200">Шкаф 2200</option>
+                        <option value="Шкаф 2300">Шкаф 2300</option>
+                        <option value="Шкаф 2400">Шкаф 2400</option>
+                        <option value="Шкаф 2500">Шкаф 2500</option>
+                        <option value="Шкаф 2600">Шкаф 2600</option>
+                        <option value="Шкаф 2700">Шкаф 2700</option>
+                        <option value="Шкаф 2800">Шкаф 2800</option>
+                        <option value="Шкаф 2900">Шкаф 2900</option>
+                        <option value="Шкаф 3000">Шкаф 3000</option>
+                        <option value="Шкаф 3100">Шкаф 3100</option>
+                        <option value="Шкаф 3200">Шкаф 3200</option>
+                        <option value="Шкаф 3300">Шкаф 3300</option>
+
                         <!-- Другие варианты размеров шкафа -->
                     </select>
                 </div>
                 <div class="container_head_comment">
                     <input type="text" placeholder="Введите комментарий" class="comment-input">
                 </div>
-                <div class="container_body_image"><img src="/closet.jpg" ></img></div>
+                <div class="container_body_image"><img src="/preview.jpg" ></img></div>
                 <div class="container_colors">
                     <div class="color-item container_colors_110SM selected" data-color="110SM">110SM</div>
                     <div class="color-item container_colors_U112" data-color="U112">U112</div>
@@ -27,15 +42,16 @@
                     <div class="color-item container_colors_U164" data-color="U164">U164</div>
                 </div>
                 <div class="container_bottom_images">
-                    <img class="selected" src="/closet.jpg" id="2_DSP" alt="2-ДСП"></img>
-                    <img src="/closet.jpg" id="2_Zer" alt="2-Зер."></img>
-                    <img src="/closet.jpg" id="1_DSP_1_Zer" alt="1-ДСП, 1-Зер."></img>
+                    <img class="selected" src="/0-2.jpg"  alt="0-2"></img>
+                    <img src="/1-1.jpg" alt="1-1"></img>
+                    <img src="/2-0.jpg"  alt="2-0"></img>
                 </div>
                 <div class="order_list"></div>
                 <button class="add-button">Добавить в список</button>
                 <button class="send-button">Отправить</button>
                 <div class="notification_add" id="notification_add">Успешно добавлено в список!</div>
                 <div class="notification_send" id="notification_send">Успешно отправлено!</div>
+                <div class="notification_error" id="notification_error">Нельзя добавить больше 10 элементов!</div>
         </div>
     </body>
 </html>

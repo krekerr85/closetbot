@@ -7,13 +7,12 @@ body {
 .container {
   display: grid;
   text-align: center; /* Контент размещаем в центре по горизонтали */
-  grid-template: repeat(14, 1fr) / repeat(6, 1fr);
+  grid-template: repeat(11, 1fr) / repeat(6, 1fr);
   grid-auto-flow: row;
   background-color: rgba(102, 94, 73, 0.5);
   margin: 0 auto;
   column-gap: 1%;
   row-gap: 1%;
-  border: 2px solid rgb(80, 145, 27); /* Обводим зелёной линией */
   border-radius: 5px; /* Скругляем углы на 5 пикселей */
   width: 35%;
   padding: 35px;
@@ -180,13 +179,12 @@ body {
   grid-column-end: 5;
   grid-row-start: 9; /* Убираем фиксированный номер строки */
   grid-row-end: 15; /* Убираем фиксированный номер строки */
-  display: flex;
   flex-direction: column;
   justify-content: flex-start !important;
-  
+  align-items: flex-start !important;
 }
 
-.notification_add  {
+.notification_add {
   visibility: hidden;
   position: fixed;
   top: 0;
@@ -197,14 +195,25 @@ body {
   text-align: center;
   padding: 10px;
 }
-.notification_send  {
-    visibility: hidden;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    background-color: green;
-    color: white;
-    text-align: center;
-    padding: 10px;
-  }
+.notification_send {
+  visibility: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: green;
+  color: white;
+  text-align: center;
+  padding: 10px;
+}
+.notification_error {
+  visibility: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: rgb(204, 54, 28);
+  color: white;
+  text-align: center;
+  padding: 10px;
+}

@@ -1,9 +1,9 @@
 
-import { OrderDTO, OrderMessageT, OrderT } from "../../types/orderType";
+import { OrderDTO, OrderT } from "../../types/orderType";
 import { OrderModel } from "../../mongo/schemas/order.model";
 import { botT } from "../../types/telegramType";
 import { getFormattedDate } from "../../utils/functions";
-import { Types } from "mongoose";
+
 
 export class OrderService {
   async createOrder(bot: botT, order: OrderDTO, user_id: number) {

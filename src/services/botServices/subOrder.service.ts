@@ -7,7 +7,7 @@ import { Types } from "mongoose";
 import { UserEnum } from "../../Enums/UserEnum";
 import path from "path";
 import { getFormattedDate } from "../../utils/functions";
-const filesDirectory = path.join(__dirname, "../../../files");
+const filesDirectory = path.join(__dirname, "../../../static");
 export class SubOrderService {
   async createSubOrders(bot: botT, order: OrderDTO, order_id: Types.ObjectId) {
     const { size, comment, color, door_type } = order;
@@ -84,7 +84,7 @@ export class SubOrderService {
   ): Promise<string[]> {
     const filePath: string = path.join(
       filesDirectory,
-      `${size}_${door_type}_${color}`
+      `files/${size}_${door_type}_${color}`
     );
     const fileArr: string[] = [];
     return new Promise((res, rej) => {
