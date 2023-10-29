@@ -26,7 +26,7 @@ export class TelegramService {
 
     const { _id } = orderDocument;
 
-    this.subOrderService.createSubOrders(this.bot, order, _id);
+    await this.subOrderService.createSubOrders(this.bot, order, _id);
   }
 
   async updateState(ctx: ctxT) {

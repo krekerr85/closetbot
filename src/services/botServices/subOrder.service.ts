@@ -20,7 +20,6 @@ export class SubOrderService {
     const file1Data = fs.createReadStream(file1_path);
 
     const file2Data = fs.createReadStream(file2_path);
-
     const buttons: InlineKeyboardButton[] = [
       { text: "Принял", callback_data: "accepted" },
       { text: "Готов", callback_data: "ready" },

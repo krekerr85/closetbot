@@ -105,3 +105,36 @@ sendButton.addEventListener('click', () => {
             console.error("Error:", error);
         });
 });
+
+
+const closetSizeSelect = document.querySelector('.closet-size-select');
+const containerColors = document.querySelector('.container_colors');
+const bottomImages = document.querySelectorAll('.container_bottom_images img');
+
+const imageDir = {
+    '1800': "1,1-1,9",
+    '1900': "1,1-1,9",
+    
+} 
+closetSizeSelect.addEventListener('change', updateImages);
+containerColors.addEventListener('click', updateImages);
+
+async function updateImages() {
+    const selectedSize = closetSizeSelect.value;
+    const selectedColor = containerColors.querySelector('.selected').textContent;
+
+    // Отправить запрос на сервер для получения фотографий в зависимости от выбранных параметров
+    try {
+        const response = await fetch(`/api/images/get_images?size=${selectedSize}&color=${selectedColor}`);
+        const data = await response.json();
+        
+        // Обновить src атрибуты изображений в container_bottom_images
+        bottomImages.forEach((image, index) => {
+            const imageName = data.images[index]; // предполагается, что сервер возвращает массив имен файлов
+            image.src = `/images/${imageDir[selectedSize.slice(5)]}/${selectedColor}/${imageName}`;
+            image.alt = `Фото ${selectedSize} (${selectedColor})`;
+        });
+    } catch (error) {
+        console.error('Ошибка при получении данных с сервера:', error);
+    }
+}

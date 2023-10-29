@@ -33,6 +33,7 @@ export class TelegramBot {
     this.bot.on("callback_query", async (ctx) => {
       await this.telegramService.updateState(ctx);
     });
+    
   }
 
   async createOrders(orders: OrderDTO[]) {
