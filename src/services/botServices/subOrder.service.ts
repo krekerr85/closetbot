@@ -84,7 +84,7 @@ export class SubOrderService {
   ): Promise<string[]> {
     const filePath: string = path.join(
       filesDirectory,
-      `files/${size}_${door_type}_${color}`
+      `files/${size}/${door_type}/${color}`
     );
     const fileArr: string[] = [];
     return new Promise((res, rej) => {

@@ -14,9 +14,9 @@ body {
   column-gap: 1%;
   row-gap: 1%;
   border-radius: 5px; /* Скругляем углы на 5 пикселей */
-  width: 35%;
+  width: 30%;
   padding: 35px;
-  font-size: 25px;
+  font-size: 20px;
 }
 
 .container div {
@@ -45,7 +45,7 @@ body {
 }
 .closet-size-select {
   padding: 20px;
-  font-size: 30px;
+  font-size: 20px;
   border: none;
   outline: none;
   /* Другие стили по вашему выбору, например, фон, цвет текста и др. */
@@ -62,7 +62,7 @@ body {
 .comment-input {
   width: 100%; /* Занимает 100% ширины родительского элемента (container_head_comment) */
   padding: 10px; /* Внутренний отступ для улучшения визуального восприятия */
-  font-size: 30px; /* Размер шрифта */
+  font-size: 20px; /* Размер шрифта */
   border: none; /* Убирает рамку вокруг поля ввода */
   outline: none; /* Убирает контур фокуса при клике на поле ввода */
   text-align: center;
@@ -155,8 +155,8 @@ body {
   border-radius: 50px; /* Круглые углы */
   text-align: center;
   cursor: pointer;
-  grid-column-start: 1;
-  grid-column-end: 7;
+  grid-column-start: 2;
+  grid-column-end: 6;
   grid-row-start: 8;
   grid-row-end: 9;
   font-size: 20px;
