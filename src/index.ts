@@ -6,18 +6,26 @@ import {OrderDTO } from "./types/orderType";
 import passport from 'passport';
 import {connectDB} from './mongo/db';
 import authRoutes from './controllers/auth.controller';
-import orderApiRoutes from './controllers/order.controller';
+import orderApiRoutes from './controllers/order.controller_auth';
+import orderRoutes from './controllers/order.controller';
+import path from 'path';
 
 const app = express();
 connectDB();
+app.use(express.static(path.join(process.cwd(), 'client')));
 app.use(express.json());
 app.use(passport.initialize());
 
 app.use('/auth', authRoutes);
 
 app.use('/api/auth', orderApiRoutes);
-app.use(bodyParser.json());
 
+app.use('/api/order', orderRoutes);
+
+app.use(bodyParser.json());
+app.get('/express_backend', (req, res) => { //Строка 9
+  res.send({ express: 'YOUR EXPRESS BACKEND IS CONNECTED TO REACT' }); //Строка 10
+}); 
 async function init() {
   
   const telegramBot = new TelegramBot(process.env.TELEGRAM_TOKEN!);

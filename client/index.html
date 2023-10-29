@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>CSS Grid Layout</title>
+        <script src="index.js" defer></script>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <!-- Это будет грид-контейнер с пятью элементами внутри -->
+        <div class="container">
+                <div class="container_head_order_num">№ 1</div>
+                <div class="container_head_closet_size">
+                    <select class="closet-size-select">
+                        <option value="Шкаф 1800">Шкаф 1800</option>
+                        <option value="Шкаф 1900">Шкаф 1900</option>
+                        <!-- Другие варианты размеров шкафа -->
+                    </select>
+                </div>
+                <div class="container_head_comment">
+                    <input type="text" placeholder="Введите комментарий" class="comment-input">
+                </div>
+                <div class="container_body_image"><img src="/closet.jpg" ></img></div>
+                <div class="container_colors">
+                    <div class="color-item container_colors_101SM selected" data-color="101SM">101SM</div>
+                    <div class="color-item container_colors_U112" data-color="U112">U112</div>
+                    <div class="color-item container_colors_3025MX" data-color="3025MX">3025MX</div>
+                    <div class="color-item container_colors_U164" data-color="U164">U164</div>
+                </div>
+                <div class="container_bottom_images">
+                    <img class="selected" src="/closet.jpg" id="2_DSP" alt="2-ДСП"></img>
+                    <img src="/closet.jpg" id="2_Zer" alt="2-Зер."></img>
+                    <img src="/closet.jpg" id="1_DSP_1_Zer" alt="1-ДСП, 1-Зер."></img>
+                </div>
+                <div class="order_list"></div>
+                <button class="add-button">Добавить в список</button>
+                <button class="send-button">Отправить</button>
+                <div class="notification_add" id="notification_add">Успешно добавлено в список!</div>
+                <div class="notification_send" id="notification_send">Успешно отправлено!</div>
+        </div>
+    </body>
+</html>
