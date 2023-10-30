@@ -1,14 +1,15 @@
-
 import { OrderDTO, OrderT } from "../../types/orderType";
 import { OrderModel } from "../../mongo/schemas/order.model";
 import { botT } from "../../types/telegramType";
 import { getFormattedDate } from "../../utils/functions";
-
+import { doorTypes } from "../../types/doorType";
 
 export class OrderService {
   async createOrder(bot: botT, order: OrderDTO, user_id: number) {
-    const {size, color, door_type, comment} = order;
-    const messageTextTitle = `Шкаф ${size} (${color})(${door_type})(${comment})(${getFormattedDate(new Date())})`;
+    const { size, color, door_type, comment } = order;
+    const messageTextTitle = `Шкаф ${size} (${color})(${
+      doorTypes[door_type]
+    })(${comment})(${getFormattedDate(new Date())})`;
     const messageText = `${messageTextTitle} \nРаспил \n❎ \n❎ \nДвери \n❎ \n❎`;
     const message = await bot.telegram.sendMessage(user_id, messageText);
 
@@ -27,5 +28,4 @@ export class OrderService {
   async getOrderByOrderId(message_id: number) {
     return await OrderModel.findOne({ message_id });
   }
-
 }
