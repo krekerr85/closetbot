@@ -4,13 +4,24 @@ import { TUser } from "../../types/userType";
 export class UserService {
   async createUser(user: TUser) {
     try {
-      return await UserModel.create(user);
+      // Проверяем, существует ли пользователь с такими данными
+      const existingUser = await UserModel.findOne({ user_id: user.user_id });
+
+      // Если пользователь существует, возвращаем его данные
+      if (existingUser) {
+        return existingUser;
+      }
+
+      // Если пользователь не существует, создаем нового пользователя
+      const newUser = await UserModel.create(user);
+      return newUser;
     } catch (e) {
-      console.log(e);
+      console.error(e);
+      throw e; // Пробросим ошибку, чтобы ее обработать в другом месте при необходимости
     }
   }
 
   async getUserInfo(user_id: number) {
-    return  await UserModel.findOne({ user_id });
+    return await UserModel.findOne({ user_id });
   }
 }

@@ -6,13 +6,17 @@ import { botT } from "../../types/telegramType";
 import { Types } from "mongoose";
 import { UserEnum } from "../../Enums/UserEnum";
 import path from "path";
-import { getFormattedDate } from "../../utils/functions";
+import { getFormattedDate, markdownV2Format } from "../../utils/functions";
 import { doorTypes } from "../../types/doorType";
 const filesDirectory = path.join(__dirname, "../../../static");
 
-
 export class SubOrderService {
-  async createSubOrders(bot: botT, order: OrderDTO, order_id: Types.ObjectId) {
+  async createSubOrders(
+    bot: botT,
+    order: OrderDTO,
+    order_id: Types.ObjectId,
+    order_num: number
+  ) {
     const { size, comment, color, door_type } = order;
 
     const [file1_path, file1_name, file2_path, file2_name] =
@@ -20,6 +24,7 @@ export class SubOrderService {
     const file1Data = fs.createReadStream(file1_path);
 
     const file2Data = fs.createReadStream(file2_path);
+
     const buttons: InlineKeyboardButton[] = [
       { text: "Принял", callback_data: "accepted" },
       { text: "Готов", callback_data: "ready" },
@@ -37,17 +42,18 @@ export class SubOrderService {
       },
     ]);
 
-    const messageTitle = `Шкаф ${size} (${color})(${
-      doorTypes[door_type]
+    const messageTitle = `№${order_num} Шкаф ${size} (${color})(${
+      door_type
     })(${comment})(${getFormattedDate(new Date())})`;
 
     const sawingMessage = await bot.telegram.sendMessage(
       UserEnum.Sawing,
-      messageTitle,
+      markdownV2Format(messageTitle),
       {
         reply_markup: {
           inline_keyboard: keyboard,
         },
+        parse_mode: "MarkdownV2",
       }
     );
     const newSubSawingOrder: SubOrderT = {
@@ -60,11 +66,12 @@ export class SubOrderService {
 
     const doorMessage = await bot.telegram.sendMessage(
       UserEnum.Door,
-      messageTitle,
+      markdownV2Format(messageTitle),
       {
         reply_markup: {
           inline_keyboard: keyboard,
         },
+        parse_mode: "MarkdownV2",
       }
     );
 
@@ -84,7 +91,7 @@ export class SubOrderService {
   ): Promise<string[]> {
     const filePath: string = path.join(
       filesDirectory,
-      `files/${size}/${door_type}/${color}`
+      `files/${size}/${doorTypes[door_type]}/${color}`
     );
     const fileArr: string[] = [];
     return new Promise((res, rej) => {

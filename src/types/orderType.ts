@@ -1,11 +1,13 @@
 import { Types } from "mongoose";
 
-
 export type OrderT = {
   message_id: number;
   user_id: number;
   order: OrderDTO;
   title: string;
+  date_created: Date;
+  order_num: number;
+  status: string;
 };
 
 export type SubOrderT = {
@@ -18,16 +20,14 @@ export type SubOrderT = {
 };
 
 export type OrderDTO = {
-  order_num: number;
   size: string;
-  color: string,
+  color: string;
   comment: string;
   door_type: string;
-}
-
+};
 
 export type OrderMessageT = {
-    userType: string;
-    accepted?: string;
-    ready?: string;
-  };
+  userType: string;
+  accepted?: string;
+  ready?: string;
+};

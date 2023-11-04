@@ -1,6 +1,16 @@
 import mongoose from "mongoose";
 const { Schema } = mongoose;
 const orderSchema = new Schema({
+  status: {
+    type: String,
+    require: true,
+    default: 'Active'
+  },
+  order_num: {
+    type: Number,
+    require: true,
+    unique: true,
+  },
   order:  {
     type: Object,
     required: true

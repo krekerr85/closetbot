@@ -28,6 +28,7 @@ const subOrderSchema = new Schema({
     required: true, // Указываем на модель, к которой принадлежит данный ObjectId
   },
   date_created: { type: Date, default: Date.now },
+  notificationSent: { type: Boolean, default: false},
 });
 
 export const SubOrderModel = mongoose.model("SubOrder", subOrderSchema);

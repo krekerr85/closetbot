@@ -1,0 +1,312 @@
+@import url(https://fonts.googleapis.com/css?family=Didact+Gothic|Comfortaa:400,700&subset=latin,cyrillic);
+* {
+  font-family: "Comfortaa";
+}
+.container_head {
+  align-items: center;
+}
+body {
+  background-color: rgb(223, 218, 213);
+}
+.container {
+  display: grid;
+  text-align: center; /* Контент размещаем в центре по горизонтали */
+  grid-template: repeat(8, 1fr) / repeat(7, 1fr);
+  grid-auto-flow: row;
+  grid-auto-flow: column;
+  margin: 0 auto;
+  column-gap: 2%;
+  row-gap: 1%;
+  border-radius: 15px; /* Скругляем углы на 5 пикселей */
+  padding: 5px;
+  font-size: 10px;
+}
+
+.container div {
+  border-radius: 25px;
+  display: grid;
+  align-items: center; /* Центрирует текст по вертикали */
+  justify-content: center; /* Центрирует текст по горизонтали */
+}
+
+.container_head_order_num {
+  padding: 5px;
+  background-color: rgba(255, 255, 255, 0.993);
+  grid-column-start: 1;
+  grid-column-end: 2;
+  grid-row-start: 1;
+  grid-row-end: 1;
+}
+.container_head_closet_size {
+  padding: 5px;
+  background-color: rgba(255, 255, 255, 0.993);
+  grid-column-start: 2;
+  grid-column-end: 6;
+  grid-row-start: 1;
+  grid-row-end: 1;
+  font-size: 10px;
+}
+.closet-size-select {
+  padding: 5px;
+  font-size: 10px;
+  border: none;
+  outline: none;
+  /* Другие стили по вашему выбору, например, фон, цвет текста и др. */
+}
+
+.container_head_comment {
+  padding: 5px;
+  background-color: rgba(255, 255, 255, 0.993);
+  grid-column-start: 6;
+  grid-column-end: 8;
+  grid-row-start: 1;
+  grid-row-end: 1;
+}
+.comment-input {
+  width: 100%; /* Занимает 100% ширины родительского элемента (container_head_comment) */ /* Внутренний отступ для улучшения визуального восприятия */
+  font-size: 8px; /* Размер шрифта */
+  border: none; /* Убирает рамку вокруг поля ввода */
+  outline: none; /* Убирает контур фокуса при клике на поле ввода */
+  text-align: center;
+}
+
+.container_body_image {
+  grid-column-start: 1;
+  grid-column-end: 6;
+  grid-row-start: 2;
+  grid-row-end: 6;
+}
+.container_body_image img {
+  width: 100%;
+  height: auto;
+  border-radius: 25px;
+}
+.container_colors {
+  display: grid;
+  grid-template: repeat(4, 1fr) / repeat(1, 1fr);
+  grid-column-start: 6;
+  grid-column-end: 8;
+  grid-row-start: 2;
+  grid-row-end: 6;
+}
+.container_colors div {
+  width: 100%; /* Элементы занимают всю ширину ячейки */
+  height: 100%; /* Элементы занимают всю высоту ячейки */
+  cursor: pointer;
+  /* Другие стили для элементов, если необходимо */
+}
+.container_colors div:not(:first-child) {
+  margin-top: -0px;
+}
+
+.color-item.selected {
+  border: 1px solid rgb(131, 53, 53);
+}
+
+.container_colors_110SM {
+  background-color: rgba(255, 255, 255, 0.993);
+  border-radius: 1px;
+}
+.container_colors_U112 {
+  background-color: rgba(192, 176, 171, 0.993);
+  border-radius: 1px;
+}
+
+.container_colors_3025MX {
+  background-color: rgba(179, 140, 114, 0.993);
+  border-radius: 1px;
+}
+
+.container_colors_U164 {
+  background-color: rgba(29, 29, 29, 0.993);
+  border-radius: 1px;
+  color: white;
+}
+
+.container_bottom_images {
+  grid-column-start: 1;
+  grid-column-end: 8;
+  grid-row-start: 6;
+  grid-row-end: 8;
+  display: grid;
+  column-gap: 2rem;
+  grid-template: repeat(1, 1fr) / repeat(3, 1fr);
+}
+
+.container_bottom_images img {
+  width: 100%;
+  height: auto;
+  margin: 5px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.container_bottom_images img.selected {
+  outline: 5px solid rgb(131, 53, 53);
+  outline-offset: -5px; /* Изменить фон на светло-голубой для выбранного изображения */
+}
+/* Добавляем оформление элементам grid-контейнера: */
+
+.add-button {
+  background-color: rgb(167, 158, 150);
+  margin: 5px;
+  border-radius: 20px; /* Круглые углы */
+  text-align: center;
+  cursor: pointer;
+  grid-column-start: 1;
+  grid-column-end: 6;
+  grid-row-start: 8;
+  grid-row-end: 9;
+  font-size: 10px;
+  border: none;
+  transition: background-color 0.3s ease;
+}
+.add-button:hover {
+  background-color: rgb(167, 158, 150);
+}
+
+.send-button {
+  background-color: rgb(167, 158, 150);
+  border-radius: 20px; /* Круглые углы */
+  text-align: center;
+  margin: 5px;
+  cursor: pointer;
+  grid-column-start: 6;
+  grid-column-end: 8;
+  grid-row-start: 8;
+  grid-row-end: 9;
+  font-size: 10px;
+  border: none;
+  transition: background-color 0.3s ease;
+}
+.send-button:hover {
+  background-color: rgb(167, 158, 150);
+}
+
+.order_list {
+  display: grid;
+  column-gap: 2%;
+  row-gap: 10px;
+  border-radius: 15px; /* Скругляем углы на 5 пикселей */
+  padding: 5px;
+  font-size: 12px;
+  grid-template: repeat(1, 1fr) / repeat(1, 1fr);
+  justify-content: flex-start;
+}
+.order_item {
+  display: grid;
+  grid-template: repeat(3, 1fr) / repeat(6, 1fr);
+  height: 100%;
+}
+.container_order_num {
+  display: grid;
+  grid-column-start: 1;
+  grid-column-end: 2;
+  grid-row-start: 2;
+  grid-row-end: 2;
+  height: 100%;
+}
+.order_item_info {
+  display: grid;
+  grid-column-start: 2;
+  grid-column-end: 5;
+  grid-row-start: 2;
+  grid-row-end: 4;
+  height: 100%;
+}
+.order_list button {
+  display: inline-flex;
+  justify-content: center; /* center the content horizontally */
+  align-items: center;
+  height: 100%;
+  grid-column-start: 5;
+  grid-column-end: 7;
+  grid-row-start: 1;
+  grid-row-end: 4;
+  background-color: rgb(167, 158, 150);
+  cursor: pointer;
+  border-radius: 20px;
+  border: none;
+  font-size: 1em;
+  line-height: 1.2;
+  padding: 0.5em var(--padding-x);
+
+  transition: background-color 0.3s ease;
+  font-size: 10px;
+}
+
+
+.notification {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: green;
+  color: white;
+  text-align: center;
+  padding: 5px;
+}
+
+.notification-red {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: rgb(204, 54, 28);
+  color: white;
+  text-align: center;
+  padding: 5px;
+}
+
+.loader {
+  --b: 10px; /* border thickness */
+  --n: 10; /* number of dashes*/
+  --g: 10deg; /* gap between dashes*/
+  --c: rgb(255, 255, 255); /* the color */
+  width: 100px; /* size */
+  aspect-ratio: 1;
+  border-radius: 50%;
+  padding: 1px;
+  background: conic-gradient(#0000, var(--c)) content-box;
+  -webkit-mask: repeating-conic-gradient(
+      #0000 0deg,
+      #000 1deg calc(360deg / var(--n) - var(--g) - 1deg),
+      #0000 calc(360deg / var(--n) - var(--g)) calc(360deg / var(--n))
+    ),
+    radial-gradient(
+      farthest-side,
+      #0000 calc(98% - var(--b)),
+      #000 calc(100% - var(--b))
+    );
+  mask: repeating-conic-gradient(
+      #0000 0deg,
+      #000 1deg calc(360deg / var(--n) - var(--g) - 1deg),
+      #0000 calc(360deg / var(--n) - var(--g)) calc(360deg / var(--n))
+    ),
+    radial-gradient(
+      farthest-side,
+      #0000 calc(98% - var(--b)),
+      #000 calc(100% - var(--b))
+    );
+  -webkit-mask-composite: destination-in;
+  mask-composite: intersect;
+  animation: load 1s infinite steps(var(--n));
+}
+@keyframes load {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+.loader-wrapper {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7); /* Темный фон */
+  justify-content: center;
+  align-items: center;
+  z-index: 9999; /* Поместите его поверх других элементов */
+}

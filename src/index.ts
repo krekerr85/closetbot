@@ -1,57 +1,45 @@
-import bodyParser from "body-parser";
-import "dotenv/config";
-import express from "express";
-import { TelegramBot } from "./telegram";
-import {OrderDTO } from "./types/orderType";
-import passport from 'passport';
-import {connectDB} from './mongo/db';
-import authRoutes from './controllers/auth.controller';
-import orderApiRoutes from './controllers/order.controller_auth';
-import orderRoutes from './controllers/order.controller';
-import imagesRoutes from './controllers/images.controller';
 
-import path from 'path';
-const imagesDirectory = path.join(
-  __dirname,
-  `../static/photos/`
-);
+
+import express from "express";
+import passport from "passport";
+import { connectDB } from "./mongo/db";
+import setupTelegramRoutes from "./routes/telegram.router";
+import imagesRoutes from "./routes/images.router";
+import cors from "cors";
+import path from "path";
+import { TelegramService } from "./services/botServices/telegram.service";
+import { Telegraf } from "telegraf";
+import dotenv from 'dotenv'
+
+const imagesDirectory = path.join(__dirname, `../static/photos/`);
+
+dotenv.config({
+  path: path.resolve(__dirname, `../.env.${process.env.NODE_ENV}`)
+});
+
 const app = express();
 connectDB();
-app.use(express.static(path.join(process.cwd(), 'client')));
+
+app.use(cors());
+app.use(express.static(path.join(process.cwd(), "./client_react/build")));
 app.use(express.json());
 app.use(passport.initialize());
-app.use('/images', express.static(imagesDirectory));
 
-app.use('/auth', authRoutes);
+app.use("/images", express.static(imagesDirectory));
+app.use("/api/images", imagesRoutes);
 
-app.use('/api/auth', orderApiRoutes);
 
-app.use('/api/order', orderRoutes);
+const bot = new Telegraf(process.env.TELEGRAM_TOKEN!);
+bot.launch();
+const telegramService = new TelegramService(bot);
 
-app.use('/api/images', imagesRoutes);
 
-app.use(bodyParser.json());
-app.get('/express_backend', (req, res) => { //Строка 9
-  res.send({ express: 'YOUR EXPRESS BACKEND IS CONNECTED TO REACT' }); //Строка 10
-}); 
+app.use("/api/telegram", setupTelegramRoutes(telegramService));
+
 
 async function init() {
+
   
-  const telegramBot = new TelegramBot(process.env.TELEGRAM_TOKEN!);
-
-
-  app.post("/create-order", async (req, res) => {
-
-    const orders: OrderDTO[] = req.body; 
-
-
-    try {
-      await telegramBot.createOrders(orders);
-      res.status(200).json({ message: "Order created successfully" });
-    } catch (error) {
-      res.status(500).json({ error: "Failed to create order" });
-    }
-  });
 
   app.listen(process.env.PORT || 3000, () =>
     console.log("Listening on port", process.env.PORT || 3000)

@@ -1,3 +1,13 @@
 node_modules/*
 node_modules
+static
 static/*
+ngrok.exe
+.env.development
+.env.production
+client_react/node_modules
+client_react/node_modules/*
+client_react/.env.development
+client_react/.env.production
+client_react/public
+client_react/build
