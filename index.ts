@@ -20,7 +20,7 @@ connectDB();
 
 app.use(cors());
 app.use(express.static(path.join(process.cwd(), "./client_react/build")));
-console.log()
+console.log(path.join(process.cwd(), "./client_react/build"))
 app.use(express.json());
 app.use(passport.initialize());
 
