@@ -66,20 +66,24 @@ export class TelegramService {
   }
 
   async createOrder(order: OrderDTO) {
-    const orderDocument = await this.orderService.createOrder(
-      this.bot,
-      order,
-      UserEnum.Watcher
-    );
-
-    const { _id, order_num } = orderDocument;
-
-    await this.subOrderService.createSubOrders(
-      this.bot,
-      order,
-      _id,
-      order_num!
-    );
+    const userWatchers = await this.userService.getUsersByRole('watcher');
+    for (const user of userWatchers){
+      const orderDocument = await this.orderService.createOrder(
+        this.bot,
+        order,
+        user
+      );
+  
+      const { _id, order_num } = orderDocument;
+  
+      await this.subOrderService.createSubOrders(
+        this.bot,
+        order,
+        _id,
+        order_num!
+      );
+    }
+    
   }
 
   async updateState(ctx: ctxT) {
