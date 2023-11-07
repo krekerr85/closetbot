@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "jsx": "react",
+    "target": "esnext" /* Версия ECMAScript, к которой будет компилироваться TypeScript код */,
+    "module": "nodenext" /* Формат модулей в JavaScript (например, CommonJS, AMD, ES6, и т.д.) */,
+    "declaration": true,
+    "removeComments": true,
+    "moduleResolution": "nodenext" /* Включает все строгие проверки типов */,
+    "esModuleInterop": true /* Разрешает импорт модулей CommonJS как пространства имен в ES модулях */,
+    "skipLibCheck": true /* Пропустить проверку типов объявлений файлов библиотек */,
+    "forceConsistentCasingInFileNames": true /* Гарантирует однородный регистр букв в именах файлов */,
+    "outDir": "./dist" /* Каталог, в который будут компилироваться TypeScript файлы */,
+    "rootDir": "./src" /* Корневой каталог TypeScript исходных файлов */,
+    "baseUrl": "./",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true /* Базовый каталог, который используется при разрешении модулей */
+  },
+  "include": [
+    "src/**/*.ts" /* Пути к файлам TypeScript, которые нужно включить в компиляцию */
+  ],
+  "exclude": [
+    "node_modules" /* Пути к файлам или папкам, которые нужно исключить из компиляции */
+  ]
+}

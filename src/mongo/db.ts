@@ -10,3 +10,16 @@ export const connectDB = async () => {
     }
   }
 
+//1) npm run local-services 2) подключиться через compass mongodb://closetbot:closetbot@localhost:17017/ 
+// 3) создать пользователя 
+// db.createUser({
+//   user: 'closetbot',
+//   pwd: 'closetbot',
+//   roles: [
+//     {
+//       role: 'readWrite',
+//       db: 'closetbot',
+//     },
+//   ],
+// });
+// 

@@ -6,7 +6,6 @@ import { ParamsModel } from "../../mongo/schemas/params.model";
 import { JWT } from "google-auth-library";
 import creds from "../../config/corded-cable-343416-9fb71f0a2562.json"; // the file saved above
 import { getFormattedDate } from "../../utils/functions";
-import { doorTypes } from "../../types/doorType";
 export class GoogleSheetService {
   private readonly doc;
   private readonly SCOPES = [
@@ -24,6 +23,7 @@ export class GoogleSheetService {
       "1ae130cnQK5EuFvrTbxnsBg54eIb2cqcsdjz6PU0POao",
       this.jwt
     );
+    this.init();
   }
   async init() {
     this.loadPrices();
@@ -53,7 +53,7 @@ export class GoogleSheetService {
         let priceColorU164 = row.get("U164");
         let door_type = row.get("Варианты дверей");
 
-        // Проверяем, существует ли запись с указанными параметрами
+        
         await PriceModel.findOneAndUpdate(
           { width, door_type, color: "110SM" },
           { price: priceColor110SMrice },
@@ -99,8 +99,8 @@ export class GoogleSheetService {
     await this.doc.loadInfo();
     const sheet = this.doc.sheetsByIndex[0];
     await sheet.loadCells("J4:J5");
-    const hoursForProcessing = sheet.getCellByA1("J4"); // or A1 style notation
-    const daysForProduction = sheet.getCellByA1("J5"); // or A1 style notation
+    const hoursForProcessing = sheet.getCellByA1("J4"); 
+    const daysForProduction = sheet.getCellByA1("J5");
     await ParamsModel.findOneAndUpdate(
       {},
       {
@@ -113,22 +113,21 @@ export class GoogleSheetService {
 
   async writeData(order: OrderT) {
     await this.doc.loadInfo();
-    const sheet = this.doc.sheetsByIndex[1]; // Индекс или название листа, куда вы хотите записать данные
+    const sheet = this.doc.sheetsByIndex[1];
     const price = await this.getPriceInfo(order.order);
     if (!price) {
       console.log("Цена не задана!");
       return;
     }
-    // Данные для записи
+
     const rowData = [
       order.order_num,
       order.order.size,
       order.order.color,
-      doorTypes[order.order.door_type],
+      order.order.door_type,
       order.order.comment,
       getFormattedDate(order.date_created),
       price,
-      // Другие колонки и значения
     ];
 
     // Добавление новой строки в конец таблицы

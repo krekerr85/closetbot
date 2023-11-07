@@ -129,6 +129,7 @@ export class TelegramService {
     subOrder: SubOrderT,
     message_id: number
   ) {
+    // @ts-ignore
     const { data } = ctx.update.callback_query;
     let updatedButtons =
       // @ts-ignore
