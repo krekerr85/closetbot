@@ -2,7 +2,6 @@ import express from "express";
 import fs from "fs";
 import path from "path";
 
-const BASE_URL = "http://localhost:3001";
 interface ImageResponse {
     [key: string]: string;
 }
@@ -53,9 +52,9 @@ router.get("/", (req, res) => {
 
       files.forEach((file) => {
         if (file === 'preview.jpg') {
-          previewImage = `${BASE_URL}/images/${imageDir[size]}/${color}/${file}`;
+          previewImage = `/images/${imageDir[size]}/${color}/${file}`;
         } else {
-          additionalImages.push(`${BASE_URL}/images/${imageDir[size]}/${color}/${file}`);
+          additionalImages.push(`/images/${imageDir[size]}/${color}/${file}`);
         }
       });
 
