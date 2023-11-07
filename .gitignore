@@ -10,7 +10,6 @@ client_react/node_modules
 client_react/node_modules/*
 client_react/.env.development
 client_react/.env.production
-client_react/public
 client_react/build
 adminjs/node_modules/*
 
