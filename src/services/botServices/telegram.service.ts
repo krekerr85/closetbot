@@ -49,7 +49,7 @@ export class TelegramService {
           Markup.keyboard([
             Markup.button.webApp(
               "Конструктор",
-              "https://1cd8-109-195-147-205.ngrok-free.app"
+              "https://zrealm.ru"
             ),
           ]).resize()
         );

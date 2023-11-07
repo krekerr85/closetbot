@@ -72,7 +72,7 @@ const App = () => {
       loaderWrapper.style.display = "flex";
 
       const res = await axios.post(
-        "http://localhost:3001/api/telegram/create-order",
+        `${process.env.REACT_APP_API_BASE_URL}/api/telegram/create-order`,
         orderList
       );
 
