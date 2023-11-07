@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "cross-env NODE_ENV=production tsc --outDir build",
+    "build": "cross-env NODE_ENV=production ts-node index.ts",
     "start:dev": "npx nodemon",
     "lint": "eslint .",
     "local-services": "docker-compose -f ./docker-compose.local-services.yml --env-file ./.env.local-services up"
