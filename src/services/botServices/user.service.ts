@@ -28,7 +28,7 @@ export class UserService {
     return await UserModel.findOne({ role });
   }
   async getUsersByRole(role: string) {
-    const users = await UserModel.find({ role }, 'user_id');
+    const users = await UserModel.find({ role });
     const userIds = users.map(user => user.user_id);
     return userIds;
   }
