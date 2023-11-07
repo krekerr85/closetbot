@@ -37,7 +37,7 @@ router.get("/", (req, res) => {
   let previewImage = "";
   const additionalImages: string[] = [];
   const { size, color } = req.query;
-
+  console.log('1')
   if (size && typeof size === 'string' && color) {
     const imagesDirectory = path.resolve(
       __dirname,
@@ -60,6 +60,7 @@ router.get("/", (req, res) => {
       });
 
       // Отправьте список файлов обратно на фронтенд
+      console.log({ additional: additionalImages, preview: previewImage })
       res.json({ additional: additionalImages, preview: previewImage });
     });
   }

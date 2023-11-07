@@ -9,7 +9,7 @@ import { TelegramService } from "./src/services/botServices/telegram.service";
 import { Telegraf } from "telegraf";
 import dotenv from "dotenv";
 
-const imagesDirectory = path.join(__dirname, `../static_files/photos/`);
+const imagesDirectory = path.join(__dirname, `./static_files/photos/`);
 
 dotenv.config({
   path: path.resolve(__dirname, `.env.${process.env.NODE_ENV}`),
@@ -20,6 +20,7 @@ connectDB();
 
 app.use(cors());
 app.use(express.static(path.join(process.cwd(), "./client_react/build")));
+console.log()
 app.use(express.json());
 app.use(passport.initialize());
 
