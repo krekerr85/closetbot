@@ -2,11 +2,12 @@ import mongoose from "mongoose";
 const { Schema } = mongoose;
 
 const userSchema = new Schema({
-  username: {
-    type: String,
+  username: String,
+  user_id: {
+    type: Number,
     unique: true,
+    required: true,
   },
-  user_id: Number,
   first_name: String,
   last_name: String,
   role: {
