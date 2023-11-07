@@ -122,12 +122,15 @@ const App = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const loaderWrapper = document.querySelector(".loader-wrapper");
+        loaderWrapper.style.display = "flex";
         const response = await axios.get(
           `${process.env.REACT_APP_API_BASE_URL}/api/images?color=${selectedColor}&size=${selectedSize}`
         );
         setPreviewImage(response.data.preview);
         setAdditionalImages(response.data.additional);
         setSelectedImage(response.data.additional[0]);
+        loaderWrapper.style.display = "none";
       } catch (error) {
         console.error("Error fetching images:", error);
       }
