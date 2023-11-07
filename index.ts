@@ -1,18 +1,18 @@
 import express from "express";
 import passport from "passport";
-import { connectDB } from "./mongo/db";
-import setupTelegramRoutes from "./routes/telegram.router";
-import imagesRoutes from "./routes/images.router";
+import { connectDB } from "./src/mongo/db";
+import setupTelegramRoutes from "./src/routes/telegram.router";
+import imagesRoutes from "./src/routes/images.router";
 import cors from "cors";
 import path from "path";
-import { TelegramService } from "./services/botServices/telegram.service";
+import { TelegramService } from "./src/services/botServices/telegram.service";
 import { Telegraf } from "telegraf";
 import dotenv from "dotenv";
 
 const imagesDirectory = path.join(__dirname, `../static_files/photos/`);
 
 dotenv.config({
-  path: path.resolve(__dirname, `../.env.${process.env.NODE_ENV}`),
+  path: path.resolve(__dirname, `.env.${process.env.NODE_ENV}`),
 });
 
 const app = express();
