@@ -35,8 +35,10 @@ export class SubOrderService {
       { text: "Готов", callback_data: "ready" },
     ];
     const keyboard: InlineKeyboardButton[][] = [[...buttons]];
+    const userSawing = await this.userService.getUserByRole('sawing');
+    const userDoor = await this.userService.getUserByRole('door');
 
-    await bot.telegram.sendMediaGroup(UserEnum.Sawing, [
+    await bot.telegram.sendMediaGroup(userDoor?.user_id || UserEnum.Door, [
       {
         media: { source: file1Data, filename: file1_name },
         type: "document",
@@ -52,28 +54,6 @@ export class SubOrderService {
     })(${comment})(${getFormattedDate(new Date())})`;
 
 
-    const sawingDoor = await this.userService.getUserByRole('sawing');
-
-    const sawingMessage = await bot.telegram.sendMessage(
-      sawingDoor?.user_id || UserEnum.Sawing,
-      markdownV2Format(messageTitle),
-      {
-        reply_markup: {
-          inline_keyboard: keyboard,
-        },
-        parse_mode: "MarkdownV2",
-      }
-    );
-    const newSubSawingOrder: SubOrderT = {
-      user_id: sawingMessage.chat.id,
-      message_id: sawingMessage.message_id,
-      order_id,
-      order_type: "door",
-    };
-    await SubOrderModel.create(newSubSawingOrder);
-
-    const userDoor = await this.userService.getUserByRole('door');
-
     const doorMessage = await bot.telegram.sendMessage(
       userDoor?.user_id || UserEnum.Door,
       markdownV2Format(messageTitle),
@@ -84,12 +64,32 @@ export class SubOrderService {
         parse_mode: "MarkdownV2",
       }
     );
-
-    const newSubDoorOrder: SubOrderT = {
+    const newSubSawingOrder: SubOrderT = {
       user_id: doorMessage.chat.id,
       message_id: doorMessage.message_id,
       order_id,
       order_type: "door",
+    };
+    await SubOrderModel.create(newSubSawingOrder);
+
+    
+
+    const sawingMessage = await bot.telegram.sendMessage(
+      userSawing?.user_id || UserEnum.Sawing,
+      markdownV2Format(messageTitle),
+      {
+        reply_markup: {
+          inline_keyboard: keyboard,
+        },
+        parse_mode: "MarkdownV2",
+      }
+    );
+
+    const newSubDoorOrder: SubOrderT = {
+      user_id: sawingMessage.chat.id,
+      message_id: sawingMessage.message_id,
+      order_id,
+      order_type: "sawing",
     };
     await SubOrderModel.create(newSubDoorOrder);
   }
