@@ -47,7 +47,7 @@ export class TelegramService {
 
       this.userService.createUser(userSender);
       
-      if (ctx.update.message.from.id in userWatchers || ctx.update.message.from.id  === UserEnum.Watcher) {
+      if (userWatchers.includes(ctx.update.message.from.id) || ctx.update.message.from.id  === UserEnum.Watcher) {
         return ctx.reply(
           `Привет, ${ctx.update.message.from.first_name}!`,
           Markup.keyboard([
