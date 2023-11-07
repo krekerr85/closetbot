@@ -35,7 +35,9 @@ export class TelegramService {
   }
 
   async init() {
+    const userWatchers = await this.userService.getUsersByRole('watcher');
     this.bot.start((ctx) => {
+      
       const userSender: TUser = {
         user_id: ctx.update.message.from.id,
         first_name: ctx.update.message.from.first_name,
@@ -44,8 +46,8 @@ export class TelegramService {
       };
 
       this.userService.createUser(userSender);
-
-      if (ctx.update.message.from.id === UserEnum.Watcher) {
+      
+      if (ctx.update.message.from.id in userWatchers || ctx.update.message.from.id  === UserEnum.Watcher) {
         return ctx.reply(
           `Привет, ${ctx.update.message.from.first_name}!`,
           Markup.keyboard([
