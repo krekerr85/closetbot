@@ -2,7 +2,6 @@ import { OrderDTO, OrderT } from "../../types/orderType";
 import { OrderModel } from "../../mongo/schemas/order.model";
 import { botT } from "../../types/telegramType";
 import { getFormattedDate, markdownV2Format } from "../../utils/functions";
-import { doorTypes } from "../../types/doorType";
 import { InlineKeyboardButton } from "telegraf/typings/core/types/typegram";
 import { GoogleSheetService } from "./google_sheet.service";
 

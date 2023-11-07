@@ -9,6 +9,10 @@ const userSchema = new Schema({
   user_id: Number,
   first_name: String,
   last_name: String,
+  role: {
+    type: String,
+    default: 'user'
+  },
   date_created: { type: Date, default: Date.now },
 });
 

@@ -21,8 +21,8 @@ const App = () => {
     "4-0.jpg": "4-ДСП",
   };
   const closetSizes = [
-    1800, 1900, 2000, 2100, 2200, 2300, 2400, 2500, 2600, 2700, 2800, 2900,
-    3000, 3100, 3200, 3300,
+        
+      3300, 3200, 3100, 3000, 2900,2800, 2700, 2600, 2500, 2400, 2300,2200,2100,2000, 1900, 1800, 1700, 1600, 1500, 1400, 1300, 1200, 1100
   ];
 
   const [orderNum, setOrderNum] = useState(1);
@@ -122,12 +122,15 @@ const App = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const loaderWrapper = document.querySelector(".loader-wrapper");
+        loaderWrapper.style.display = "flex";
         const response = await axios.get(
           `${process.env.REACT_APP_API_BASE_URL}/api/images?color=${selectedColor}&size=${selectedSize}`
         );
         setPreviewImage(response.data.preview);
         setAdditionalImages(response.data.additional);
         setSelectedImage(response.data.additional[0]);
+        loaderWrapper.style.display = "none";
       } catch (error) {
         console.error("Error fetching images:", error);
       }

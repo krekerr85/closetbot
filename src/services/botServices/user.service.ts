@@ -24,4 +24,7 @@ export class UserService {
   async getUserInfo(user_id: number) {
     return await UserModel.findOne({ user_id });
   }
+  async getUserByRole(role: string) {
+    return await UserModel.findOne({ role });
+  }
 }

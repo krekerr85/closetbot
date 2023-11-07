@@ -8,9 +8,14 @@ import { UserEnum } from "../../Enums/UserEnum";
 import path from "path";
 import { getFormattedDate, markdownV2Format } from "../../utils/functions";
 import { doorTypes } from "../../types/doorType";
+import { UserService } from "./user.service";
 const filesDirectory = path.join(__dirname, "../../../static_files");
 
 export class SubOrderService {
+  private readonly userService: UserService;
+  constructor(){
+    this.userService = new UserService();
+  }
   async createSubOrders(
     bot: botT,
     order: OrderDTO,
@@ -46,8 +51,11 @@ export class SubOrderService {
       door_type
     })(${comment})(${getFormattedDate(new Date())})`;
 
+
+    const sawingDoor = await this.userService.getUserByRole('sawing');
+
     const sawingMessage = await bot.telegram.sendMessage(
-      UserEnum.Sawing,
+      sawingDoor?.user_id || UserEnum.Sawing,
       markdownV2Format(messageTitle),
       {
         reply_markup: {
@@ -64,8 +72,10 @@ export class SubOrderService {
     };
     await SubOrderModel.create(newSubSawingOrder);
 
+    const userDoor = await this.userService.getUserByRole('door');
+
     const doorMessage = await bot.telegram.sendMessage(
-      UserEnum.Door,
+      userDoor?.user_id || UserEnum.Door,
       markdownV2Format(messageTitle),
       {
         reply_markup: {
