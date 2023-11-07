@@ -41,7 +41,7 @@ router.get("/", (req, res) => {
   if (size && typeof size === 'string' && color) {
     const imagesDirectory = path.resolve(
       __dirname,
-      `../../static/photos/${imageDir[size]}/${color}`
+      `../../static_files/photos/${imageDir[size]}/${color}`
     );
 
     fs.readdir(imagesDirectory, (err, files) => {

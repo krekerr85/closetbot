@@ -8,7 +8,7 @@ import { UserEnum } from "../../Enums/UserEnum";
 import path from "path";
 import { getFormattedDate, markdownV2Format } from "../../utils/functions";
 import { doorTypes } from "../../types/doorType";
-const filesDirectory = path.join(__dirname, "../../../static");
+const filesDirectory = path.join(__dirname, "../../../static_files");
 
 export class SubOrderService {
   async createSubOrders(
