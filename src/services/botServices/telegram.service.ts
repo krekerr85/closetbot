@@ -83,7 +83,6 @@ export class TelegramService {
   }
 
   async createOrder(order: OrderDTO) {
-<<<<<<< HEAD
     const orderDocument = await this.orderService.createOrder(this.bot, order);
 
     const { _id, order_num } = orderDocument;
@@ -94,26 +93,6 @@ export class TelegramService {
       _id,
       order_num!
     );
-=======
-    const userWatchers = await this.userService.getUsersByRole('watcher');
-    for (const user of userWatchers){
-      const orderDocument = await this.orderService.createOrder(
-        this.bot,
-        order,
-        user
-      );
-  
-      const { _id, order_num } = orderDocument;
-  
-      await this.subOrderService.createSubOrders(
-        this.bot,
-        order,
-        _id,
-        order_num!
-      );
-    }
-    
->>>>>>> 5d3d0c70b60e9187465740d163d84d9e87e30ff6
   }
 
   async updateState(ctx: ctxT) {
