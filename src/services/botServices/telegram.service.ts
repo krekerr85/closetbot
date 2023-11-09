@@ -222,21 +222,21 @@ export class TelegramService {
     const message = {
       title: order.title,
       doorAccepted: subOrderDoor.accepted_date
-        ? `✅ Принял ${getFormattedDate(subOrderDoor.accepted_date)}`
+        ? `✅ Принял (${getFormattedDate(subOrderDoor.accepted_date)})`
         : "❎",
       doorReady: subOrderDoor.ready_date
-        ? `✅ Готов ${getFormattedDate(subOrderDoor.ready_date)}`
+        ? `✅ Готов (${getFormattedDate(subOrderDoor.ready_date)})`
         : "❎",
       sawingAccepted: subOrderSawing.accepted_date
-        ? `✅ Принял ${getFormattedDate(subOrderSawing.accepted_date)}`
+        ? `✅ Принял (${getFormattedDate(subOrderSawing.accepted_date)})`
         : "❎",
       sawingReady: subOrderSawing.ready_date
-        ? `✅ Готов ${getFormattedDate(subOrderSawing.ready_date)}`
+        ? `✅ Готов (${getFormattedDate(subOrderSawing.ready_date)})`
         : "❎",
     };
     let fullMessage = "";
     if (deleted) {
-      fullMessage = `~${message.title}~ \nРаспил \n${message.sawingAccepted} \n${message.sawingReady} \nДверь \n${message.doorAccepted} \n${message.doorReady}`;
+      fullMessage = `~${message.title}~ \nРаспил \n${message.sawingAccepted} \n${message.sawingReady} \nДвери \n${message.doorAccepted} \n${message.doorReady}`;
       for (const message of order.messages) {
         await this.bot.telegram.editMessageText(
           message.user_id,
@@ -265,7 +265,7 @@ export class TelegramService {
         await this.googleSheetService.deleteOrder(order.order_num);
       }
     } else {
-      fullMessage = `${message.title} \nРаспил \n${message.sawingAccepted} \n${message.sawingReady} \nДверь \n${message.doorAccepted} \n${message.doorReady}`;
+      fullMessage = `${message.title} \nРаспил \n${message.sawingAccepted} \n${message.sawingReady} \nДвери \n${message.doorAccepted} \n${message.doorReady}`;
       for (const message of order.messages) {
         await this.bot.telegram.editMessageText(
           message.user_id,
