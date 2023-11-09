@@ -54,14 +54,17 @@ export class SubOrderService {
       ]);
     }
 
-    const messageTitle = `№${order_num} Шкаф ${size} (${color})(${door_type})(${comment})(${getFormattedDate(
+    const messageTitleDoor = `№${order_num}\nШкаф ${size} (${color})(${door_type})(${comment})(${getFormattedDate(
       new Date()
     )})\n ${addInfo}`;
+    const messageTitleSawing = `№${order_num}\nШкаф ${size} (${color})(${door_type})(${comment})(${getFormattedDate(
+      new Date()
+    )})`;
 
     if (userSawing?.user_id) {
       const sawingMessage = await bot.telegram.sendMessage(
         userSawing?.user_id,
-        markdownV2Format(messageTitle),
+        markdownV2Format(messageTitleSawing),
         {
           reply_markup: {
             inline_keyboard: keyboard,
@@ -80,7 +83,7 @@ export class SubOrderService {
     if (userDoor?.user_id) {
       const doorMessage = await bot.telegram.sendMessage(
         userDoor?.user_id,
-        markdownV2Format(messageTitle),
+        markdownV2Format(messageTitleDoor),
         {
           reply_markup: {
             inline_keyboard: keyboard,

@@ -22,7 +22,7 @@ export class OrderService {
     const { size, color, door_type, comment } = order;
     const order_num = new Date().getTime();
     const addInfo = await this.googleSheetService.getAddTextInfo(order);
-    const messageTextTitle = `№${order_num} Шкаф ${size} (${color})(${door_type})(${comment})(${getFormattedDate(
+    const messageTextTitle = `№${order_num}\nШкаф ${size} (${color})(${door_type})(${comment})(${getFormattedDate(
       new Date()
     )})\n ${addInfo}`;
     const messageText = `${messageTextTitle}\nРаспил \n❎ \n❎ \nДвери \n❎ \n❎`;

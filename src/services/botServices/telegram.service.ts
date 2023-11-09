@@ -222,16 +222,16 @@ export class TelegramService {
     const message = {
       title: order.title,
       doorAccepted: subOrderDoor.accepted_date
-        ? `✅ ${getFormattedDate(subOrderDoor.accepted_date)}`
+        ? `✅ Принял ${getFormattedDate(subOrderDoor.accepted_date)}`
         : "❎",
       doorReady: subOrderDoor.ready_date
-        ? `✅ ${getFormattedDate(subOrderDoor.ready_date)}`
+        ? `✅ Готов ${getFormattedDate(subOrderDoor.ready_date)}`
         : "❎",
       sawingAccepted: subOrderSawing.accepted_date
-        ? `✅ ${getFormattedDate(subOrderSawing.accepted_date)}`
+        ? `✅ Принял ${getFormattedDate(subOrderSawing.accepted_date)}`
         : "❎",
       sawingReady: subOrderSawing.ready_date
-        ? `✅ ${getFormattedDate(subOrderSawing.ready_date)}`
+        ? `✅ Готов ${getFormattedDate(subOrderSawing.ready_date)}`
         : "❎",
     };
     let fullMessage = "";
