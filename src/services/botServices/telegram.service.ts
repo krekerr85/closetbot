@@ -66,6 +66,10 @@ export class TelegramService {
         );
       }
     });
+    OrderModel.watch().on("change", async (data) => {
+      console.log(data)
+    });
+
     this.bot.start(async (ctx) => {
       const userSender: TUser = {
         user_id: ctx.update.message.from.id,
@@ -250,18 +254,19 @@ export class TelegramService {
             parse_mode: "MarkdownV2",
           }
         );
-        OrderModel.updateOne(
+        const res = await OrderModel.updateOne(
           { _id: order_id },
           { $set: { status: "deleted" } }
         );
-        SubOrderModel.updateOne(
+        const res2 = await SubOrderModel.updateOne(
           { _id: subOrderDoor._id },
           { $set: { status: "deleted" } }
         );
-        SubOrderModel.updateOne(
+        const res3 = await SubOrderModel.updateOne(
           { _id: subOrderSawing._id },
           { $set: { status: "deleted" } }
         );
+        console.log(res,res2,res3)
         await this.googleSheetService.deleteOrder(order.order_num);
       }
     } else {
