@@ -67,7 +67,7 @@ export class TelegramService {
       }
     });
     OrderModel.watch().on("change", async (data) => {
-      console.log(data)
+      //console.log(data)
     });
 
     this.bot.start(async (ctx) => {
@@ -266,7 +266,7 @@ export class TelegramService {
           { _id: subOrderSawing._id },
           { $set: { status: "deleted" } }
         );
-        console.log(res,res2,res3)
+        console.log('res = ', res,res2,res3)
         await this.googleSheetService.deleteOrder(order.order_num);
       }
     } else {
