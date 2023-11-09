@@ -254,20 +254,13 @@ export class TelegramService {
             parse_mode: "MarkdownV2",
           }
         );
-        const res = await OrderModel.updateOne(
+        await OrderModel.updateOne(
           { _id: order_id },
           { $set: { status: "deleted" } }
         );
-        console.log('subOrderSawing._id', subOrderSawing._id, 'subOrderDoor._id ', subOrderDoor._id )
-        const res2 = await SubOrderModel.updateOne(
-          { _id: subOrderDoor._id },
-          { $set: { status: "deleted" } }
-        );
-        const res3 = await SubOrderModel.updateOne(
-          { _id: subOrderSawing._id },
-          { $set: { status: "deleted" } }
-        );
-        console.log('res = ', res,res2,res3)
+
+        await SubOrderModel.deleteOne({ _id: subOrderDoor._id });
+        await SubOrderModel.deleteOne({ _id: subOrderSawing._id });
         await this.googleSheetService.deleteOrder(order.order_num);
       }
     } else {
