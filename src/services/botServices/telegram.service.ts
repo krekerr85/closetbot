@@ -258,6 +258,7 @@ export class TelegramService {
           { _id: order_id },
           { $set: { status: "deleted" } }
         );
+        console.log('subOrderSawing._id', subOrderSawing._id, 'subOrderDoor._id ', subOrderDoor._id )
         const res2 = await SubOrderModel.updateOne(
           { _id: subOrderDoor._id },
           { $set: { status: "deleted" } }
