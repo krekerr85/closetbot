@@ -26,6 +26,7 @@ const App = () => {
   ];
 
   const [orderNum, setOrderNum] = useState(1);
+
   const [selectedColor, setSelectedColor] = useState(colors[0].name);
   const [selectedSize, setSelectedSize] = useState(closetSizes[0]);
   const [previewImage, setPreviewImage] = useState("");
@@ -53,15 +54,16 @@ const App = () => {
     const selectedImage = document.querySelector(
       ".container_bottom_images img.selected"
     );
+    const comment = document.querySelector(".comment-input");
 
     const newOrder = {
       order_num: orderNum,
       size: closetSizeSelect.value,
       color: selectedColor,
       door_type: selectedImage.alt,
-      comment: document.querySelector(".comment-input").value,
+      comment: comment.value,
     };
-
+    comment.value = '';
     setOrderList([...orderList, newOrder]);
     setOrderNum(orderNum + 1);
   };

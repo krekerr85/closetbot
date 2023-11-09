@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose from 'mongoose';
 
 export enum Role {
   reader = 'user',
@@ -7,7 +7,7 @@ export enum Role {
   admin = 'watcher',
 }
 
-export interface UserDocument extends Document {
+export interface UserDocument extends mongoose.Document {
   username: string;
   user_id: number,
   first_name: string,
@@ -16,7 +16,7 @@ export interface UserDocument extends Document {
   date_created: Date
 }
 
-const userSchema: Schema = new Schema({
+const userSchema: mongoose.Schema = new mongoose.Schema({
   username: {type: String},
   user_id: {type: Number},
   first_name: {type: String},

@@ -1,14 +1,19 @@
-import { OrderDTO, OrderT } from "../../types/orderType";
+import { OrderDTO, OrderT, TelegramMessageT } from "../../types/orderType";
 import { OrderModel } from "../../mongo/schemas/order.model";
 import { botT } from "../../types/telegramType";
 import { getFormattedDate, markdownV2Format } from "../../utils/functions";
 import { InlineKeyboardButton } from "telegraf/typings/core/types/typegram";
 import { GoogleSheetService } from "./google_sheet.service";
+import { UserService } from "./user.service";
+import { Types } from "mongoose";
 
 export class OrderService {
-  constructor(private readonly googleSheetService: GoogleSheetService) {}
+  private readonly userService;
+  constructor(private readonly googleSheetService: GoogleSheetService) {
+    this.userService = new UserService();
+  }
 
-  async createOrder(bot: botT, order: OrderDTO, user_id: number) {
+  async createOrder(bot: botT, order: OrderDTO) {
     const buttons: InlineKeyboardButton[] = [
       { text: "Удалить заказ", callback_data: "deleteOrder" },
     ];
@@ -16,39 +21,49 @@ export class OrderService {
 
     const { size, color, door_type, comment } = order;
     const order_num = new Date().getTime();
-    const messageTextTitle = `№${order_num} Шкаф ${size} (${color})(${
-      door_type
-    })(${comment})(${getFormattedDate(new Date())})`;
+    const addInfo = await this.googleSheetService.getAddTextInfo(order);
+    const messageTextTitle = `№${order_num} Шкаф ${size} (${color})(${door_type})(${comment})(${getFormattedDate(
+      new Date()
+    )})\n ${addInfo}`;
     const messageText = `${messageTextTitle}\nРаспил \n❎ \n❎ \nДвери \n❎ \n❎`;
-    const message = await bot.telegram.sendMessage(
-      user_id,
-      markdownV2Format(messageText),
-      {
-        reply_markup: {
-          inline_keyboard: keyboard,
-        },
-        parse_mode: "MarkdownV2",
-      }
-    );
-
+    const userWatchers = await this.userService.getUsersByRole("watcher");
+    const messages: TelegramMessageT[] = [];
+    for (const user of userWatchers) {
+      const message = await bot.telegram.sendMessage(
+        user,
+        markdownV2Format(messageText),
+        {
+          reply_markup: {
+            inline_keyboard: keyboard,
+          },
+          parse_mode: "MarkdownV2",
+        }
+      );
+      messages.push({
+        message_id : message.message_id,
+        user_id: user,
+      });
+    }
     const orderDoc = await OrderModel.create({
       order_num,
       order,
-      user_id,
-      message_id: message.message_id,
+      messages,
       title: messageTextTitle,
     });
-
     await this.googleSheetService.writeData(orderDoc.toObject());
 
     return orderDoc;
   }
 
-  async updateOrder(message_id: number, order: OrderT) {
-    return await OrderModel.updateOne({ message_id }, { $set: order });
+  async getOrderById(_id: Types.ObjectId) {
+    return await OrderModel.findOne({ _id });
   }
 
-  async getOrderByMessageId(message_id: number) {
-    return await OrderModel.findOne({ message_id });
+  async getOrderByMessageId(message_id: number)  {
+    const order = await OrderModel.findOne({
+      'messages.message_id': message_id
+    });
+  
+    return order;
   }
 }

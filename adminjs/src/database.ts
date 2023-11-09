@@ -7,4 +7,4 @@ export const connect = (
   return mongoose.connect(uri, dbSetting);
 };
 
-export const DatabaseURI = "mongodb://closetbot:closetbot@localhost:17017/closetbot";
+export const DatabaseURI = "mongodb://closetbot:closetbot@localhost:20000/closetbot?directConnection=true";

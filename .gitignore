@@ -7,10 +7,13 @@ ngrok.exe
 .env.development
 .env.production
 .env.local-services
+src/configs/*
+src/configs
 client_react/node_modules
 client_react/node_modules/*
 client_react/.env.development
 client_react/.env.production
 client_react/build
 adminjs/node_modules/*
-
+adminjs/dist/*
+adminjs/dist

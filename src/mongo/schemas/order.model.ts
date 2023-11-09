@@ -15,13 +15,9 @@ const orderSchema = new Schema({
     type: Object,
     required: true
   },
-  user_id: {
-    type: Number,
-    required: true
-  },
   last_name: String,
-  message_id: {
-    type: Number,
+  messages: {
+    type: Object,
     required: true
   },
   title: String,

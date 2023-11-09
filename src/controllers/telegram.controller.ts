@@ -20,6 +20,7 @@ class TelegramController {
     }
     
   }
+
 }
 
 export default TelegramController;

@@ -1,25 +1,44 @@
-version: '3'
-services:
-  mongodb:
-    image: mongo
-    container_name: mongodb-container
-    restart: always
-    ports:
-      - "${MONGO_PORT}:27017"
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
-      MONGO_INITDB_DATABASE: ${MONGO_DATABASE}
-    volumes:
-      - mongodb-data:/data/db
-      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
-    networks:
-      - app-network
+version: '3.8'
 
 networks:
-  app-network:
+  common.network:
     driver: bridge
 
 volumes:
-  mongodb-data:
+  mongo.one.vol:
+    name: "mongo.one.vol"
+
+  mongo.two.vol:
+    name: "mongo.two.vol"
+
+services: 
+  mongo.one.db:
+    container_name: mongo.one.db
+    image: mongo:latest
+    networks:
+      common.network:
+    ports:
+      - 20000:27017
+    environment:
+        MONGO_INITDB_DATABASE: ${MONGO_DATABASE}
+    volumes:
+      - mongo.one.vol:/data/db
+      #- ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+      # - ./rs-init.sh:/scripts/rs-init.sh
+    restart: always
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "dbrs" ]
+
+  mongo.two.db:
+    container_name: mongo.two.db
+    image: mongo:latest
+    networks:
+      common.network:
+    ports:
+      - 20001:27017
+    depends_on:
+      - mongo.one.db
+    volumes:
+      - mongo.two.vol:/data/db
+    restart: always
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "dbrs" ]
   

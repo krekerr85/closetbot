@@ -4,11 +4,11 @@ import { connect, DatabaseURI } from "./database.js";
 import AdminJSExpress from "@adminjs/express";
 import express from "express";
 import mongoose from 'mongoose'
-import { PhotoResource } from "./admin/resources/photo.resource.js";
+//import { PhotoResource } from "./admin/resources/photo.resource.js";
 import * as url from 'url'
 import path from 'path';
 import { componentLoader } from "./admin/components/component-loader.js";
-import UserModel from "./admin/photo/user.entity.js";
+import UserModel from "./admin/entities/user.entity.js";
 // other imports
 
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url))

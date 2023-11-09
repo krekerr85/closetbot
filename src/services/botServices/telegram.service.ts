@@ -1,10 +1,8 @@
 import { OrderT, OrderDTO, SubOrderT } from "../../types/orderType";
 import { SubOrderService } from "./subOrder.service";
-import { UserEnum } from "../../Enums/UserEnum";
 import { getFormattedDate, markdownV2Format } from "../../utils/functions";
 import { botT, ctxT } from "../../types/telegramType";
 import { OrderService } from "./order.service";
-import { OrderModel } from "../../mongo/schemas/order.model";
 import { Types } from "mongoose";
 import { InlineKeyboardButton } from "telegraf/typings/core/types/typegram";
 import { SubOrderModel } from "../../mongo/schemas/sub_order.model";
@@ -13,6 +11,8 @@ import { GoogleSheetService } from "./google_sheet.service";
 import { Markup } from "telegraf";
 import { UserService } from "./user.service";
 import { TUser } from "../../types/userType";
+import { UserModel } from "../../mongo/schemas/user.model";
+import { OrderModel } from "../../mongo/schemas/order.model";
 
 export class TelegramService {
   private readonly orderService;
@@ -35,29 +35,46 @@ export class TelegramService {
   }
 
   async init() {
-    const userWatchers = await this.userService.getUsersByRole('watcher');
-    this.bot.start((ctx) => {
-      
+    UserModel.watch().on("change", async (data) => {
+      const role = data?.updateDescription?.updatedFields?.role;
+      if (!role) {
+        return;
+      }
+      const user_id = data.documentKey;
+      const userDoc = await this.userService.getUserByid(user_id);
+      if (!userDoc) {
+        return;
+      }
+      if (role === "watcher") {
+        this.bot.telegram.sendMessage(
+          userDoc.user_id,
+          `Привет, ваша роль сменилась на ${role}!`,
+          Markup.keyboard([
+            Markup.button.webApp(
+              "Конструктор",
+              process.env.WEB_APP || "localhost:3001"
+            ),
+          ]).resize()
+        );
+      } else {
+        this.bot.telegram.sendMessage(
+          userDoc.user_id,
+          `Привет, ваша роль сменилась на ${role}!`,
+          {
+            reply_markup: { remove_keyboard: true },
+          }
+        );
+      }
+    });
+    this.bot.start(async (ctx) => {
       const userSender: TUser = {
         user_id: ctx.update.message.from.id,
         first_name: ctx.update.message.from.first_name,
         last_name: ctx.update.message.from?.last_name,
         username: ctx.update.message.from?.username,
       };
-
       this.userService.createUser(userSender);
-      
-      if (userWatchers.includes(ctx.update.message.from.id) || ctx.update.message.from.id  === UserEnum.Watcher) {
-        return ctx.reply(
-          `Привет, ${ctx.update.message.from.first_name}!`,
-          Markup.keyboard([
-            Markup.button.webApp(
-              "Конструктор",
-              "https://zrealm.ru"
-            ),
-          ]).resize()
-        );
-      }
+      return ctx.reply(`Привет, ${ctx.update.message.from.first_name}!`);
     });
 
     this.bot.on("callback_query", async (ctx) => {
@@ -66,11 +83,7 @@ export class TelegramService {
   }
 
   async createOrder(order: OrderDTO) {
-    const orderDocument = await this.orderService.createOrder(
-      this.bot,
-      order,
-      UserEnum.Watcher
-    );
+    const orderDocument = await this.orderService.createOrder(this.bot, order);
 
     const { _id, order_num } = orderDocument;
 
@@ -84,13 +97,11 @@ export class TelegramService {
 
   async updateState(ctx: ctxT) {
     const { message_id } = ctx.update.callback_query.message!;
-
-    const subOrder: SubOrderT | undefined = (
-      await this.subOrderService.getSubOrderByMessageId(message_id)
-    )?.toObject();
-    if (!subOrder) {
+    // @ts-ignore
+    const { data } = ctx.update.callback_query;
+    if (data === "deleteOrder") {
       const order = await this.orderService.getOrderByMessageId(message_id);
-      if (!order) {
+      if (!order?._id) {
         return;
       }
       const subOrders = await this.subOrderService.getSubOrdersByOrderId(
@@ -106,13 +117,19 @@ export class TelegramService {
       }
       await this.updateOrderState(order._id, order.toObject(), true);
     } else {
-      const orderDocument = await OrderModel.findOne({
-        _id: subOrder.order_id,
-      });
-
+      const subOrder: SubOrderT | undefined = (
+        await this.subOrderService.getSubOrderByMessageId(message_id)
+      )?.toObject();
+      if (!subOrder) {
+        return;
+      }
+      const orderDocument = await this.orderService.getOrderById(
+        subOrder.order_id
+      );
       if (!orderDocument) {
         return;
       }
+
       const order: OrderT = orderDocument.toObject();
       const res = await this.updateSubOrderState(
         ctx,
@@ -138,8 +155,7 @@ export class TelegramService {
     let updatedButtons =
       // @ts-ignore
       ctx.update.callback_query.message!.reply_markup!.inline_keyboard[0];
-    console.log(data);
-    console.log(message_id);
+
     if (data === "accepted") {
       if (!subOrder.accepted_date) {
         subOrder.accepted_date = new Date();
@@ -202,6 +218,7 @@ export class TelegramService {
     const keyboard: InlineKeyboardButton[][] = [[...buttons]];
     const [subOrderDoor, subOrderSawing] =
       await this.subOrderService.getSubOrdersByOrderId(order_id);
+    console.log(subOrderDoor, subOrderSawing);
     const message = {
       title: order.title,
       doorAccepted: subOrderDoor.accepted_date
@@ -220,32 +237,49 @@ export class TelegramService {
     let fullMessage = "";
     if (deleted) {
       fullMessage = `~${message.title}~ \nРаспил \n${message.sawingAccepted} \n${message.sawingReady} \nДверь \n${message.doorAccepted} \n${message.doorReady}`;
-      await this.bot.telegram.editMessageText(
-        order.user_id,
-        order.message_id,
-        undefined,
-        markdownV2Format(fullMessage),
-        {
-          reply_markup: {
-            inline_keyboard: [],
-          },
-          parse_mode: "MarkdownV2",
-        }
-      );
+      for (const message of order.messages) {
+        await this.bot.telegram.editMessageText(
+          message.user_id,
+          message.message_id,
+          undefined,
+          markdownV2Format(fullMessage),
+          {
+            reply_markup: {
+              inline_keyboard: [],
+            },
+            parse_mode: "MarkdownV2",
+          }
+        );
+        OrderModel.updateOne(
+          { _id: order_id },
+          { $set: { status: "deleted" } }
+        );
+        SubOrderModel.updateOne(
+          { _id: subOrderDoor._id },
+          { $set: { status: "deleted" } }
+        );
+        SubOrderModel.updateOne(
+          { _id: subOrderSawing._id },
+          { $set: { status: "deleted" } }
+        );
+        await this.googleSheetService.deleteOrder(order.order_num);
+      }
     } else {
       fullMessage = `${message.title} \nРаспил \n${message.sawingAccepted} \n${message.sawingReady} \nДверь \n${message.doorAccepted} \n${message.doorReady}`;
-      await this.bot.telegram.editMessageText(
-        order.user_id,
-        order.message_id,
-        undefined,
-        markdownV2Format(fullMessage),
-        {
-          reply_markup: {
-            inline_keyboard: keyboard,
-          },
-          parse_mode: "MarkdownV2",
-        }
-      );
+      for (const message of order.messages) {
+        await this.bot.telegram.editMessageText(
+          message.user_id,
+          message.message_id,
+          undefined,
+          markdownV2Format(fullMessage),
+          {
+            reply_markup: {
+              inline_keyboard: keyboard,
+            },
+            parse_mode: "MarkdownV2",
+          }
+        );
+      }
     }
   }
 
@@ -257,6 +291,7 @@ export class TelegramService {
       // Получите заказы из базы данных, у которых accepted_date имеет значение null и созданы более 4 часов назад
       const expiredNotAcceptedOrders = await SubOrderModel.find({
         accepted_date: null,
+        status: { $ne: "deleted" },
         date_created: {
           $lt: new Date(Date.now() - hoursForProcessing * 60 * 60 * 1000),
         },
@@ -265,6 +300,7 @@ export class TelegramService {
       const expiredNotReadyOrders = await SubOrderModel.find({
         accepted_date: { $ne: null }, // Поле accepted_date не является null
         ready_date: null, // Поле ready_date равно null
+        status: { $ne: "deleted" },
         date_created: {
           $lt: new Date(Date.now() - daysForProduction * 24 * 60 * 60 * 1000),
         },

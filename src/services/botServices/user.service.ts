@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import { UserModel } from "../../mongo/schemas/user.model";
 import { TUser } from "../../types/userType";
 
@@ -23,6 +24,9 @@ export class UserService {
 
   async getUserInfo(user_id: number) {
     return await UserModel.findOne({ user_id });
+  }
+  async getUserByid(_id: Types.ObjectId) {
+    return await UserModel.findOne({ _id });
   }
   async getUserByRole(role: string) {
     return await UserModel.findOne({ role });

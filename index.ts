@@ -16,7 +16,7 @@ dotenv.config({
 });
 
 const app = express();
-connectDB();
+
 
 app.use(cors());
 app.use(express.static(path.join(process.cwd(), "./client_react/build")));
@@ -34,7 +34,7 @@ const telegramService = new TelegramService(bot);
 app.use("/api/telegram", setupTelegramRoutes(telegramService));
 
 async function init() {
-
+  await connectDB();
   app.listen(process.env.PORT || 3000, () => {
     console.log("Listening on port", process.env.PORT || 3000);
   });

@@ -1,7 +1,7 @@
 import { ResourceOptions } from "adminjs";
 import uploadFeature from "@adminjs/upload";
 import { componentLoader } from "../components/component-loader.js";
-import PhotoModel from "../photo/photo.entity.js";
+import PhotoModel from "../entities/photo.entity.js";
 import { LocalProvider2 } from "../providers/uploadProvider.js";
 
 const localProvider = {

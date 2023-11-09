@@ -1,8 +1,12 @@
 import { Types } from "mongoose";
 
-export type OrderT = {
+export type TelegramMessageT = {
   message_id: number;
   user_id: number;
+}
+
+export type OrderT = {
+  messages: TelegramMessageT[];
   order: OrderDTO;
   title: string;
   date_created: Date;
