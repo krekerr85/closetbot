@@ -24,7 +24,7 @@ export class OrderService {
     const addInfo = await this.googleSheetService.getAddTextInfo(order);
     const messageTextTitle = `№${order_num}\nШкаф ${size} (${color})(${door_type})(${comment})(${getFormattedDate(
       new Date()
-    )})\n ${addInfo}`;
+    )})\n${addInfo}`;
     const messageText = `${messageTextTitle}\nРаспил \n❎ \n❎ \nДвери \n❎ \n❎`;
     const userWatchers = await this.userService.getUsersByRole("watcher");
     const messages: TelegramMessageT[] = [];

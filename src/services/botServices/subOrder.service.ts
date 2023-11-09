@@ -56,7 +56,7 @@ export class SubOrderService {
 
     const messageTitleDoor = `№${order_num}\nШкаф ${size} (${color})(${door_type})(${comment})(${getFormattedDate(
       new Date()
-    )})\n ${addInfo}`;
+    )})\n${addInfo}`;
     const messageTitleSawing = `№${order_num}\nШкаф ${size} (${color})(${door_type})(${comment})(${getFormattedDate(
       new Date()
     )})`;
