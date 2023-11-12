@@ -49,6 +49,8 @@ export class OrderService {
       order_num,
       order,
       messages,
+      addInfo,
+      price,
       title: messageTextTitle,
     });
     //await this.googleSheetService.writeData(orderDoc.toObject());
