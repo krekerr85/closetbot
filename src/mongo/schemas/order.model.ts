@@ -3,28 +3,28 @@ const { Schema } = mongoose;
 const orderSchema = new Schema({
   status: {
     type: String,
-    require: true,
-    default: 'Active'
+    required: true,
+    default: "Active",
   },
   order_num: {
     type: Number,
-    require: true,
+    required: true,
     unique: true,
   },
-  order:  {
+  order: {
     type: Object,
-    required: true
+    required: true,
   },
   last_name: String,
   messages: {
     type: Object,
-    required: true
+    required: true,
   },
-  title: String,
+  title: {
+    type: String,
+    required: true,
+  },
   date_created: { type: Date, default: Date.now },
 });
 
-export const OrderModel = mongoose.model(
-  "Order",
-  orderSchema
-);
+export const OrderModel = mongoose.model("Order", orderSchema);

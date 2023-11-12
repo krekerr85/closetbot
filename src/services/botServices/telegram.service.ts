@@ -66,19 +66,35 @@ export class TelegramService {
         );
       }
     });
-    OrderModel.watch().on("change", async (data) => {
-      //console.log(data)
-    });
 
     this.bot.start(async (ctx) => {
+      await this.bot.telegram.setMyCommands([
+        { command: "/reload", description: "Обновить гугл таблицу" },
+      ]);
       const userSender: TUser = {
         user_id: ctx.update.message.from.id,
         first_name: ctx.update.message.from.first_name,
         last_name: ctx.update.message.from?.last_name,
         username: ctx.update.message.from?.username,
       };
-      this.userService.createUser(userSender);
-      return ctx.reply(`Привет, ${ctx.update.message.from.first_name}!`);
+      const user = await this.userService.createUser(userSender);
+      if (user?.role === "watcher") {
+        return ctx.reply(
+          `Привет, ${ctx.update.message.from.first_name}!`,
+          Markup.keyboard([
+            Markup.button.webApp(
+              "Конструктор",
+              process.env.WEB_APP || "localhost:3001"
+            ),
+          ]).resize()
+        );
+      } else {
+        return ctx.reply(`Привет, ${ctx.update.message.from.first_name}!`);
+      }
+    });
+
+    this.bot.command("reload", async (ctx) => {
+      await this.googleSheetService.init();
     });
 
     this.bot.on("callback_query", async (ctx) => {
@@ -116,7 +132,7 @@ export class TelegramService {
           ctx,
           order.toObject(),
           subOrder.toObject(),
-          subOrder.message_id
+          subOrder.message_id,
         );
       }
       await this.updateOrderState(order._id, order.toObject(), true);
@@ -152,7 +168,7 @@ export class TelegramService {
     ctx: ctxT,
     order: OrderT,
     subOrder: SubOrderT,
-    message_id: number
+    message_id: number,
   ) {
     // @ts-ignore
     const { data } = ctx.update.callback_query;
@@ -191,24 +207,52 @@ export class TelegramService {
           reply_to_message_id: subOrder.message_id,
         }
       );
-      order.status = "Cancelled";
-      order.title = `~${order.title}~`;
     }
+    const sawingMessage = `№${order.order_num}\nШкаф ${order.order.size} (${
+      order.order.color
+    })(${order.order.door_type})\n(${order.order.comment})(${getFormattedDate(
+      order.date_created
+    )})`;
 
-    await this.subOrderService.updateSubOrder(message_id, subOrder);
-    await this.bot.telegram.editMessageText(
-      subOrder.user_id,
-      message_id,
-      undefined,
-      markdownV2Format(order.title),
-      {
-        reply_markup: {
-          inline_keyboard: [updatedButtons],
-        },
-        parse_mode: "MarkdownV2",
-      }
-    );
-    return true;
+    const doorMessage = `№${order.order_num}\nШкаф ${order.order.size} (${
+      order.order.color
+    })(${order.order.door_type})\n(${order.order.comment})(${getFormattedDate(
+      order.date_created
+    )})\n${order.addInfo}\n ${order.price}`;
+
+    if (subOrder.order_type === "sawing") {
+
+      await this.subOrderService.updateSubOrder(message_id, subOrder);
+      await this.bot.telegram.editMessageText(
+        subOrder.user_id,
+        message_id,
+        undefined,
+        data === "deleteOrder" ? markdownV2Format(`~${sawingMessage}~`) : markdownV2Format(sawingMessage),
+        {
+          reply_markup: {
+            inline_keyboard: [updatedButtons],
+          },
+          parse_mode: "MarkdownV2",
+        }
+      );
+      return true;
+    } else if (subOrder.order_type === "door") {
+
+      await this.subOrderService.updateSubOrder(message_id, subOrder);
+      await this.bot.telegram.editMessageText(
+        subOrder.user_id,
+        message_id,
+        undefined,
+        data === "deleteOrder" ? markdownV2Format(`~${doorMessage}~`) : markdownV2Format(doorMessage),
+        {
+          reply_markup: {
+            inline_keyboard: [updatedButtons],
+          },
+          parse_mode: "MarkdownV2",
+        }
+      );
+      return true;
+    }
   }
 
   async updateOrderState(
@@ -256,7 +300,7 @@ export class TelegramService {
         );
         await OrderModel.updateOne(
           { _id: order_id },
-          { $set: { status: "deleted" } }
+          { $set: { status: "Deleted" } }
         );
 
         await SubOrderModel.deleteOne({ _id: subOrderDoor._id });
@@ -290,7 +334,6 @@ export class TelegramService {
       // Получите заказы из базы данных, у которых accepted_date имеет значение null и созданы более 4 часов назад
       const expiredNotAcceptedOrders = await SubOrderModel.find({
         accepted_date: null,
-        status: { $ne: "deleted" },
         date_created: {
           $lt: new Date(Date.now() - hoursForProcessing * 60 * 60 * 1000),
         },
@@ -299,7 +342,6 @@ export class TelegramService {
       const expiredNotReadyOrders = await SubOrderModel.find({
         accepted_date: { $ne: null }, // Поле accepted_date не является null
         ready_date: null, // Поле ready_date равно null
-        status: { $ne: "deleted" },
         date_created: {
           $lt: new Date(Date.now() - daysForProduction * 24 * 60 * 60 * 1000),
         },
@@ -332,5 +374,10 @@ export class TelegramService {
     } catch (error) {
       console.error("Ошибка при проверке заказов:", error);
     }
+  }
+  async loadGoogleSheetData(){
+    setInterval(()=>{
+      this.googleSheetService.init();
+    },24 * 60 * 60 * 1000)
   }
 }

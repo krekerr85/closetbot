@@ -21,6 +21,10 @@ const priceSchema = new Schema({
     type: String,
     required: true,
   },
+  priceLey: {
+    type: String,
+    required: true,
+  },
   date_created: { type: Date, default: Date.now },
 });
 

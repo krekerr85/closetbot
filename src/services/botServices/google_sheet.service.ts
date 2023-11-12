@@ -23,7 +23,6 @@ export class GoogleSheetService {
       "1ae130cnQK5EuFvrTbxnsBg54eIb2cqcsdjz6PU0POao",
       this.jwt
     );
-    this.init();
   }
   async init() {
     this.loadPrices();
@@ -57,29 +56,34 @@ export class GoogleSheetService {
         let addTextColor3025MX = row.get("3025MX#");
         let addTextColorU164 = row.get("U164#");
 
-        let door_type = row.get("Варианты дверей");
+        let price110SM = row.get("Цена 110SM#");
+        let priceU112 = row.get("Цена U112#");
+        let price3025MX = row.get("Цена 3025MX#");
+        let priceU164 = row.get("Цена U164#");
+
+        let door_type = row.get("Двери");
 
         await PriceModel.findOneAndUpdate(
           { width, door_type, color: "110SM" },
-          { price: priceColor110SM, additional_text: addTextColor110SM },
+          { price: priceColor110SM, additional_text: addTextColor110SM, priceLey: price110SM },
           { upsert: true, new: true }
         );
 
         await PriceModel.findOneAndUpdate(
           { width, door_type, color: "U112" },
-          { price: priceColorU112, additional_text: addTextColorU112 },
+          { price: priceColorU112, additional_text: addTextColorU112, priceLey: priceU112 },
           { upsert: true, new: true }
         );
 
         await PriceModel.findOneAndUpdate(
           { width, door_type, color: "3025MX" },
-          { price: priceColor3025MX, additional_text: addTextColor3025MX },
+          { price: priceColor3025MX, additional_text: addTextColor3025MX, priceLey: price3025MX },
           { upsert: true, new: true }
         );
 
         await PriceModel.findOneAndUpdate(
           { width, door_type, color: "U164" },
-          { price: priceColorU164, additional_text: addTextColorU164 },
+          { price: priceColorU164, additional_text: addTextColorU164, priceLey: priceU164 },
           { upsert: true, new: true }
         );
       }
@@ -101,6 +105,17 @@ export class GoogleSheetService {
     }
   }
 
+  async getPriceLeyInfo(order: OrderDTO) {
+    const { size, color, door_type } = order;
+    const doc = await PriceModel.findOne({
+      width: size,
+      color,
+      door_type: doorTypesGoogleSheet[door_type],
+    });
+    if (doc) {
+      return doc.priceLey;
+    }
+  }
   async getAddTextInfo(order: OrderDTO) {
     const { size, color, door_type } = order;
     const doc = await PriceModel.findOne({
@@ -131,9 +146,9 @@ export class GoogleSheetService {
   async loadParams() {
     await this.doc.loadInfo();
     const sheet = this.doc.sheetsByIndex[0];
-    await sheet.loadCells("L2:L3");
-    const hoursForProcessing = sheet.getCellByA1("L2");
-    const daysForProduction = sheet.getCellByA1("L3");
+    await sheet.loadCells("P2:P3");
+    const hoursForProcessing = sheet.getCellByA1("P2");
+    const daysForProduction = sheet.getCellByA1("P3");
     await ParamsModel.findOneAndUpdate(
       {},
       {

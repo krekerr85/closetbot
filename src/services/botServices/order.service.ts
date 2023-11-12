@@ -22,9 +22,10 @@ export class OrderService {
     const { size, color, door_type, comment } = order;
     const order_num = new Date().getTime();
     const addInfo = await this.googleSheetService.getAddTextInfo(order);
-    const messageTextTitle = `№${order_num}\nШкаф ${size} (${color})(${door_type})(${comment})(${getFormattedDate(
+    const price = await this.googleSheetService.getPriceLeyInfo(order);
+    const messageTextTitle = `№${order_num}\nШкаф ${size} (${color})(${door_type})\n(${comment})(${getFormattedDate(
       new Date()
-    )})\n${addInfo}`;
+    )})\n${addInfo}\n ${price}`;
     const messageText = `${messageTextTitle}\nРаспил \n❎ \n❎ \nДвери \n❎ \n❎`;
     const userWatchers = await this.userService.getUsersByRole("watcher");
     const messages: TelegramMessageT[] = [];
@@ -50,7 +51,7 @@ export class OrderService {
       messages,
       title: messageTextTitle,
     });
-    await this.googleSheetService.writeData(orderDoc.toObject());
+    //await this.googleSheetService.writeData(orderDoc.toObject());
 
     return orderDoc;
   }

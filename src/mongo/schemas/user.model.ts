@@ -15,6 +15,15 @@ const userSchema = new Schema({
     default: 'user'
   },
   date_created: { type: Date, default: Date.now },
+  price : {
+    type: Number
+  },
+  priceLey: {
+    type: String
+  },
+  addInfo: {
+    type: String
+  }
 });
 
 export const UserModel = mongoose.model("User", userSchema);

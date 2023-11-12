@@ -41,6 +41,7 @@ export class SubOrderService {
     const userSawing = await this.userService.getUserByRole("sawing");
     const userDoor = await this.userService.getUserByRole("door");
     const addInfo = await this.googleSheetService.getAddTextInfo(order);
+    const price = await this.googleSheetService.getPriceLeyInfo(order);
     if (userSawing?.user_id) {
       await bot.telegram.sendMediaGroup(userSawing?.user_id, [
         {
@@ -53,10 +54,9 @@ export class SubOrderService {
         },
       ]);
     }
-
-    const messageTitleDoor = `№${order_num}\nШкаф ${size} (${color})(${door_type})(${comment})(${getFormattedDate(
+    const messageTitleDoor = `№${order_num}\nШкаф ${size} (${color})(${door_type})\n(${comment})(${getFormattedDate(
       new Date()
-    )})\n${addInfo}`;
+    )})\n${addInfo}\n ${price}`;
     const messageTitleSawing = `№${order_num}\nШкаф ${size} (${color})(${door_type})(${comment})(${getFormattedDate(
       new Date()
     )})`;
@@ -72,7 +72,7 @@ export class SubOrderService {
           parse_mode: "MarkdownV2",
         }
       );
-      const newSubSawingOrder: SubOrderT = {
+      const newSubSawingOrder = {
         user_id: sawingMessage.chat.id,
         message_id: sawingMessage.message_id,
         order_id,
@@ -92,7 +92,7 @@ export class SubOrderService {
         }
       );
 
-      const newSubDoorOrder: SubOrderT = {
+      const newSubDoorOrder = {
         user_id: doorMessage.chat.id,
         message_id: doorMessage.message_id,
         order_id,
