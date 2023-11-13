@@ -15,7 +15,7 @@ export type OrderT = {
   order_num: number;
   status: string;
   price: number;
-  priceLey: number;
+  priceLey: string;
   addInfo: string;
 };
 

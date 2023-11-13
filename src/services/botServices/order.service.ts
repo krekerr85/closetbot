@@ -15,17 +15,18 @@ export class OrderService {
 
   async createOrder(bot: botT, order: OrderDTO) {
     const buttons: InlineKeyboardButton[] = [
-      { text: "Удалить заказ", callback_data: "deleteOrder" },
+      { text: "Удалить заказ", callback_data: "delete" },
     ];
     const keyboard: InlineKeyboardButton[][] = [[...buttons]];
 
     const { size, color, door_type, comment } = order;
     const order_num = new Date().getTime();
     const addInfo = await this.googleSheetService.getAddTextInfo(order);
-    const price = await this.googleSheetService.getPriceLeyInfo(order);
+    const priceLey = await this.googleSheetService.getPriceLeyInfo(order);
+    const price = await this.googleSheetService.getPriceInfo(order);
     const messageTextTitle = `№${order_num}\nШкаф ${size} (${color})(${door_type})\n(${comment})(${getFormattedDate(
       new Date()
-    )})\n${addInfo}\n ${price}`;
+    )})\n${addInfo}\n ${priceLey}`;
     const messageText = `${messageTextTitle}\nРаспил \n❎ \n❎ \nДвери \n❎ \n❎`;
     const userWatchers = await this.userService.getUsersByRole("watcher");
     const messages: TelegramMessageT[] = [];
@@ -51,13 +52,17 @@ export class OrderService {
       messages,
       addInfo,
       price,
+      priceLey,
       title: messageTextTitle,
     });
-    //await this.googleSheetService.writeData(orderDoc.toObject());
+    await this.googleSheetService.writeData(orderDoc.toObject());
 
     return orderDoc;
   }
 
+  async deleteOrder(order_id: Types.ObjectId) {
+    return await OrderModel.deleteOne({ _id: order_id });
+  }
   async getOrderById(_id: Types.ObjectId) {
     return await OrderModel.findOne({ _id });
   }

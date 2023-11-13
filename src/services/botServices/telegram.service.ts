@@ -13,25 +13,44 @@ import { UserService } from "./user.service";
 import { TUser } from "../../types/userType";
 import { UserModel } from "../../mongo/schemas/user.model";
 import { OrderModel } from "../../mongo/schemas/order.model";
-
+import cron from "node-cron";
+interface StateFunctions {
+  [key: string]: (ctx: ctxT) => void;
+}
 export class TelegramService {
   private readonly orderService;
   private readonly subOrderService;
   private readonly googleSheetService;
   private readonly userService;
-
+  private readonly states: StateFunctions;
   constructor(private readonly bot: botT) {
     this.googleSheetService = new GoogleSheetService();
     this.userService = new UserService();
 
     this.subOrderService = new SubOrderService();
     this.orderService = new OrderService(this.googleSheetService);
-
+    this.states = {
+      accepted: (ctx: ctxT) => {
+        this.handleAcceptState(ctx);
+      },
+      ready: (ctx: ctxT) => {
+        this.handleReadyState(ctx);
+      },
+      delete: (ctx: ctxT) => {
+        this.handleDeleteState(ctx);
+      },
+      confirmDelete: (ctx: ctxT) => {
+        this.handleConfirmDeteteState(ctx);
+      },
+      cancelDelete: (ctx: ctxT) => {
+        this.handleCancelDeleteState(ctx);
+      },
+    };
     this.init();
 
-    setInterval(() => {
+    const cronJob = cron.schedule("0 0 * * *", async () => {
       this.checkExpiredOrders();
-    }, 60 * 5000);
+    });
   }
 
   async init() {
@@ -98,6 +117,9 @@ export class TelegramService {
     });
 
     this.bot.on("callback_query", async (ctx) => {
+      console.log(ctx);
+      // @ts-ignore
+
       await this.updateState(ctx);
     });
   }
@@ -116,214 +138,13 @@ export class TelegramService {
   }
 
   async updateState(ctx: ctxT) {
-    const { message_id } = ctx.update.callback_query.message!;
     // @ts-ignore
-    const { data } = ctx.update.callback_query;
-    if (data === "deleteOrder") {
-      const order = await this.orderService.getOrderByMessageId(message_id);
-      if (!order?._id) {
-        return;
-      }
-      const subOrders = await this.subOrderService.getSubOrdersByOrderId(
-        order._id
-      );
-      for (const subOrder of subOrders) {
-        await this.updateSubOrderState(
-          ctx,
-          order.toObject(),
-          subOrder.toObject(),
-          subOrder.message_id,
-        );
-      }
-      await this.updateOrderState(order._id, order.toObject(), true);
-    } else {
-      const subOrder: SubOrderT | undefined = (
-        await this.subOrderService.getSubOrderByMessageId(message_id)
-      )?.toObject();
-      if (!subOrder) {
-        return;
-      }
-      const orderDocument = await this.orderService.getOrderById(
-        subOrder.order_id
-      );
-      if (!orderDocument) {
-        return;
-      }
-
-      const order: OrderT = orderDocument.toObject();
-      const res = await this.updateSubOrderState(
-        ctx,
-        order,
-        subOrder,
-        message_id
-      );
-      if (!res) {
-        return;
-      }
-      await this.updateOrderState(subOrder.order_id, order);
+    const data: string = ctx.update.callback_query.data;
+    if (!data) {
+      return;
     }
-  }
-
-  async updateSubOrderState(
-    ctx: ctxT,
-    order: OrderT,
-    subOrder: SubOrderT,
-    message_id: number,
-  ) {
-    // @ts-ignore
-    const { data } = ctx.update.callback_query;
-    let updatedButtons =
-      // @ts-ignore
-      ctx.update.callback_query.message!.reply_markup!.inline_keyboard[0];
-
-    if (data === "accepted") {
-      if (!subOrder.accepted_date) {
-        subOrder.accepted_date = new Date();
-        updatedButtons[0].text = `✅ Принял`;
-      } else if (subOrder.accepted_date && !subOrder.ready_date) {
-        subOrder.accepted_date = null;
-        updatedButtons[0].text = `Принял`;
-      } else {
-        ctx.answerCbQuery();
-        return;
-      }
-    } else if (data === "ready") {
-      if (!subOrder.ready_date && subOrder.accepted_date) {
-        subOrder.ready_date = new Date();
-        updatedButtons[1].text = "✅ Готов";
-      } else if (subOrder.ready_date && subOrder.accepted_date) {
-        subOrder.ready_date = null;
-        updatedButtons[1].text = "Готов";
-      } else {
-        ctx.answerCbQuery();
-        return;
-      }
-    } else if (data === "deleteOrder") {
-      updatedButtons = [];
-      this.bot.telegram.sendMessage(
-        subOrder.user_id,
-        "Данный заказ был удален оператором",
-        {
-          reply_to_message_id: subOrder.message_id,
-        }
-      );
-    }
-    const sawingMessage = `№${order.order_num}\nШкаф ${order.order.size} (${
-      order.order.color
-    })(${order.order.door_type})\n(${order.order.comment})(${getFormattedDate(
-      order.date_created
-    )})`;
-
-    const doorMessage = `№${order.order_num}\nШкаф ${order.order.size} (${
-      order.order.color
-    })(${order.order.door_type})\n(${order.order.comment})(${getFormattedDate(
-      order.date_created
-    )})\n${order.addInfo}\n ${order.price}`;
-
-    if (subOrder.order_type === "sawing") {
-
-      await this.subOrderService.updateSubOrder(message_id, subOrder);
-      await this.bot.telegram.editMessageText(
-        subOrder.user_id,
-        message_id,
-        undefined,
-        data === "deleteOrder" ? markdownV2Format(`~${sawingMessage}~`) : markdownV2Format(sawingMessage),
-        {
-          reply_markup: {
-            inline_keyboard: [updatedButtons],
-          },
-          parse_mode: "MarkdownV2",
-        }
-      );
-      return true;
-    } else if (subOrder.order_type === "door") {
-
-      await this.subOrderService.updateSubOrder(message_id, subOrder);
-      await this.bot.telegram.editMessageText(
-        subOrder.user_id,
-        message_id,
-        undefined,
-        data === "deleteOrder" ? markdownV2Format(`~${doorMessage}~`) : markdownV2Format(doorMessage),
-        {
-          reply_markup: {
-            inline_keyboard: [updatedButtons],
-          },
-          parse_mode: "MarkdownV2",
-        }
-      );
-      return true;
-    }
-  }
-
-  async updateOrderState(
-    order_id: Types.ObjectId,
-    order: OrderT,
-    deleted: boolean = false
-  ) {
-    const buttons: InlineKeyboardButton[] = [
-      { text: "Удалить заказ", callback_data: "deleteOrder" },
-    ];
-    const keyboard: InlineKeyboardButton[][] = [[...buttons]];
-    const [subOrderDoor, subOrderSawing] =
-      await this.subOrderService.getSubOrdersByOrderId(order_id);
-    console.log(subOrderDoor, subOrderSawing);
-    const message = {
-      title: order.title,
-      doorAccepted: subOrderDoor.accepted_date
-        ? `✅ Принял (${getFormattedDate(subOrderDoor.accepted_date)})`
-        : "❎",
-      doorReady: subOrderDoor.ready_date
-        ? `✅ Готов (${getFormattedDate(subOrderDoor.ready_date)})`
-        : "❎",
-      sawingAccepted: subOrderSawing.accepted_date
-        ? `✅ Принял (${getFormattedDate(subOrderSawing.accepted_date)})`
-        : "❎",
-      sawingReady: subOrderSawing.ready_date
-        ? `✅ Готов (${getFormattedDate(subOrderSawing.ready_date)})`
-        : "❎",
-    };
-    let fullMessage = "";
-    if (deleted) {
-      fullMessage = `~${message.title}~ \nРаспил \n${message.sawingAccepted} \n${message.sawingReady} \nДвери \n${message.doorAccepted} \n${message.doorReady}`;
-      for (const message of order.messages) {
-        await this.bot.telegram.editMessageText(
-          message.user_id,
-          message.message_id,
-          undefined,
-          markdownV2Format(fullMessage),
-          {
-            reply_markup: {
-              inline_keyboard: [],
-            },
-            parse_mode: "MarkdownV2",
-          }
-        );
-        await OrderModel.updateOne(
-          { _id: order_id },
-          { $set: { status: "Deleted" } }
-        );
-
-        await SubOrderModel.deleteOne({ _id: subOrderDoor._id });
-        await SubOrderModel.deleteOne({ _id: subOrderSawing._id });
-        await this.googleSheetService.deleteOrder(order.order_num);
-      }
-    } else {
-      fullMessage = `${message.title} \nРаспил \n${message.sawingAccepted} \n${message.sawingReady} \nДвери \n${message.doorAccepted} \n${message.doorReady}`;
-      for (const message of order.messages) {
-        await this.bot.telegram.editMessageText(
-          message.user_id,
-          message.message_id,
-          undefined,
-          markdownV2Format(fullMessage),
-          {
-            reply_markup: {
-              inline_keyboard: keyboard,
-            },
-            parse_mode: "MarkdownV2",
-          }
-        );
-      }
-    }
+    const handler = this.states[data];
+    return await handler(ctx);
   }
 
   async checkExpiredOrders() {
@@ -375,9 +196,285 @@ export class TelegramService {
       console.error("Ошибка при проверке заказов:", error);
     }
   }
-  async loadGoogleSheetData(){
-    setInterval(()=>{
+  async loadGoogleSheetData() {
+    setInterval(() => {
       this.googleSheetService.init();
-    },24 * 60 * 60 * 1000)
+    }, 24 * 60 * 60 * 1000);
+  }
+
+  async handleAcceptState(ctx: ctxT) {
+    if (!ctx.update.callback_query.message) {
+      throw Error("Message not found");
+    }
+    const { message_id } = ctx.update.callback_query.message;
+
+    //@ts-ignore
+    const subOrder: SubOrderT =
+      await this.subOrderService.getSubOrderByMessageId(message_id);
+    if (!subOrder) {
+      throw Error("SubOrder not found");
+    }
+
+    const order = await this.orderService.getOrderById(subOrder.order_id);
+    if (!order) {
+      throw Error("Order not found");
+    }
+
+    let updatedButtons: InlineKeyboardButton[] =
+      // @ts-ignore
+      ctx.update.callback_query.message!.reply_markup!.inline_keyboard[0];
+
+    if (!subOrder.accepted_date) {
+      subOrder.accepted_date = new Date();
+      updatedButtons[0].text = `✅ Принял`;
+    } else if (subOrder.accepted_date && !subOrder.ready_date) {
+      subOrder.accepted_date = null;
+      updatedButtons[0].text = `Принял`;
+    } else {
+      ctx.answerCbQuery();
+      return;
+    }
+    await this.updateSubOrderState(subOrder, order, message_id, updatedButtons);
+
+    const buttons: InlineKeyboardButton[] = [
+      { text: "Удалить заказ", callback_data: "delete" },
+    ];
+    const keyboard: InlineKeyboardButton[][] = [[...buttons]];
+    await this.updateOrderState(order, keyboard);
+  }
+
+  async handleReadyState(ctx: ctxT) {
+    if (!ctx.update.callback_query.message) {
+      throw Error("Message not found");
+    }
+    const { message_id } = ctx.update.callback_query.message;
+
+    const subOrder: SubOrderT | undefined = (
+      await this.subOrderService.getSubOrderByMessageId(message_id)
+    )?.toObject();
+    if (!subOrder) {
+      throw Error("SubOrder not found");
+    }
+
+    const order = await this.orderService.getOrderById(subOrder.order_id);
+    if (!order) {
+      throw Error("Order not found");
+    }
+
+    let updatedButtons: InlineKeyboardButton[] =
+      // @ts-ignore
+      ctx.update.callback_query.message!.reply_markup!.inline_keyboard[0];
+
+    if (!subOrder.ready_date && subOrder.accepted_date) {
+      subOrder.ready_date = new Date();
+      updatedButtons[1].text = "✅ Готов";
+    } else if (subOrder.ready_date && subOrder.accepted_date) {
+      subOrder.ready_date = null;
+      updatedButtons[1].text = "Готов";
+    } else {
+      ctx.answerCbQuery();
+      return;
+    }
+
+    await this.updateSubOrderState(subOrder, order, message_id, updatedButtons);
+
+    const buttons: InlineKeyboardButton[] = [
+      { text: "Удалить заказ", callback_data: "delete" },
+    ];
+    const keyboard: InlineKeyboardButton[][] = [[...buttons]];
+    await this.updateOrderState(order, keyboard);
+  }
+
+  async handleDeleteState(ctx: ctxT) {
+    if (!ctx.update.callback_query.message) {
+      throw Error("Message not found");
+    }
+    const { message_id } = ctx.update.callback_query.message;
+
+    const order = await this.orderService.getOrderByMessageId(message_id);
+    if (!order) {
+      throw Error("Order not found");
+    }
+
+    const user_id = ctx.update.callback_query.from.id;
+    if (!user_id) {
+      throw Error("User not found");
+    }
+
+    const buttons: InlineKeyboardButton[] = [
+      { text: "Подтвердить удаление", callback_data: "confirmDelete" },
+      { text: "Отменить удаление", callback_data: "cancelDelete" },
+    ];
+    const keyboard: InlineKeyboardButton[][] = [[...buttons]];
+
+    const replyMessage = await this.getOrderMessage(order);
+    await this.bot.telegram.editMessageText(
+      user_id,
+      message_id,
+      undefined,
+      markdownV2Format(`${replyMessage}`),
+      {
+        reply_markup: {
+          inline_keyboard: keyboard,
+        },
+        parse_mode: "MarkdownV2",
+      }
+    );
+  }
+  async handleConfirmDeteteState(ctx: ctxT) {
+    if (!ctx.update.callback_query.message) {
+      throw Error("Message not found");
+    }
+    const { message_id } = ctx.update.callback_query.message;
+
+    const order = await this.orderService.getOrderByMessageId(message_id);
+    if (!order) {
+      throw Error("Order not found");
+    }
+
+    const subOrders = await this.subOrderService.getSubOrdersByOrderId(
+      order._id
+    );
+    if (!subOrders) {
+      throw Error("SubOrders not found");
+    }
+
+    await this.deleteOrder(order);
+
+    for (const subOrder of subOrders) {
+      this.deteleSubOrder(subOrder.toObject());
+    }
+
+    await this.googleSheetService.deleteOrder(order.order_num);
+  }
+  async handleCancelDeleteState(ctx: ctxT) {
+    if (!ctx.update.callback_query.message) {
+      throw Error("Message not found");
+    }
+    const { message_id } = ctx.update.callback_query.message;
+
+    const order = await this.orderService.getOrderByMessageId(message_id);
+    if (!order) {
+      throw Error("Order not found");
+    }
+
+    const buttons: InlineKeyboardButton[] = [
+      { text: "Удалить заказ", callback_data: "delete" },
+    ];
+    const keyboard: InlineKeyboardButton[][] = [[...buttons]];
+
+    await this.updateOrderState(order, keyboard);
+  }
+
+  async deteleSubOrder(subOrder: SubOrderT) {
+    this.bot.telegram.sendMessage(
+      subOrder.user_id,
+      "Данный заказ был удален оператором",
+      {
+        reply_to_message_id: subOrder.message_id,
+      }
+    );
+    await SubOrderModel.deleteOne({ subOrder });
+  }
+
+  async deleteOrder(order: OrderT) {
+    const message = await this.getOrderMessage(order);
+
+    for (const watcher of order.messages) {
+      await this.bot.telegram.editMessageText(
+        watcher.user_id,
+        watcher.message_id,
+        undefined,
+        markdownV2Format(`~${message}~`),
+        {
+          reply_markup: {
+            inline_keyboard: [],
+          },
+          parse_mode: "MarkdownV2",
+        }
+      );
+    }
+    await OrderModel.updateOne({ order }, { $set: { status: "Deleted" } });
+  }
+
+  async updateSubOrderState(
+    subOrder: SubOrderT,
+    order: OrderT,
+    message_id: number,
+    updatedButtons: InlineKeyboardButton[]
+  ) {
+    const message = await this.getSubOrderPrevMessage(subOrder, order);
+
+    await this.subOrderService.updateSubOrder(message_id, subOrder);
+    await this.bot.telegram.editMessageText(
+      subOrder.user_id,
+      message_id,
+      undefined,
+      markdownV2Format(message),
+      {
+        reply_markup: {
+          inline_keyboard: [updatedButtons],
+        },
+        parse_mode: "MarkdownV2",
+      }
+    );
+  }
+  async updateOrderState(order: OrderT, keyboard: InlineKeyboardButton[][]) {
+    const message = await this.getOrderMessage(order);
+
+    for (const watcher of order.messages) {
+      await this.bot.telegram.editMessageText(
+        watcher.user_id,
+        watcher.message_id,
+        undefined,
+        markdownV2Format(`${message}`),
+        {
+          reply_markup: {
+            inline_keyboard: keyboard,
+          },
+          parse_mode: "MarkdownV2",
+        }
+      );
+    }
+  }
+  async getOrderMessage(order: OrderT) {
+    const [subOrderDoor, subOrderSawing] =
+      await this.subOrderService.getSubOrdersByOrderId(order._id);
+    const message = {
+      title: order.title,
+      doorAccepted: subOrderDoor.accepted_date
+        ? `✅ Принял (${getFormattedDate(subOrderDoor.accepted_date)})`
+        : "❎",
+      doorReady: subOrderDoor.ready_date
+        ? `✅ Готов (${getFormattedDate(subOrderDoor.ready_date)})`
+        : "❎",
+      sawingAccepted: subOrderSawing.accepted_date
+        ? `✅ Принял (${getFormattedDate(subOrderSawing.accepted_date)})`
+        : "❎",
+      sawingReady: subOrderSawing.ready_date
+        ? `✅ Готов (${getFormattedDate(subOrderSawing.ready_date)})`
+        : "❎",
+    };
+    const fullMessage = `${message.title}\nРаспил \n${message.sawingAccepted} \n${message.sawingReady} \nДвери \n${message.doorAccepted} \n${message.doorReady}`;
+    return fullMessage;
+  }
+
+  async getSubOrderPrevMessage(subOrder: SubOrderT, order: OrderT) {
+    let message = "";
+    if (subOrder.order_type === "sawing") {
+      message = `№${order.order_num}\nШкаф ${order.order.size} (${
+        order.order.color
+      })(${order.order.door_type})\n(${order.order.comment})(${getFormattedDate(
+        order.date_created
+      )})`;
+    } else if (subOrder.order_type === "door") {
+      message = `№${order.order_num}\nШкаф ${order.order.size} (${
+        order.order.color
+      })(${order.order.door_type})\n(${order.order.comment})(${getFormattedDate(
+        order.date_created
+      )})\n${order.addInfo}\n ${order.priceLey}`;
+    }
+
+    return message;
   }
 }
