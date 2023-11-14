@@ -185,7 +185,7 @@ body {
   font-size: 12px;
   grid-template: repeat(1, 1fr) / repeat(1, 1fr);
   justify-content: flex-start;
-  margin-top: 3rem;
+  margin-top: 2rem;
 }
 .order_item {
   display: grid;

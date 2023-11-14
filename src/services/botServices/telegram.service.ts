@@ -342,7 +342,7 @@ export class TelegramService {
     await this.deleteOrder(order);
 
     for (const subOrder of subOrders) {
-      this.deteleSubOrder(subOrder.toObject());
+      this.deteleSubOrder(subOrder.toObject(), order);
     }
 
     await this.googleSheetService.deleteOrder(order.order_num);
@@ -366,7 +366,22 @@ export class TelegramService {
     await this.updateOrderState(order, keyboard);
   }
 
-  async deteleSubOrder(subOrder: SubOrderT) {
+  async deteleSubOrder(subOrder: SubOrderT, order: OrderT) {
+    const message = await this.getSubOrderPrevMessage(subOrder, order);
+
+    await this.bot.telegram.editMessageText(
+      subOrder.user_id,
+      subOrder.message_id,
+      undefined,
+      markdownV2Format(`~${message}~`),
+      {
+        reply_markup: {
+          inline_keyboard: [],
+        },
+        parse_mode: "MarkdownV2",
+      }
+    );
+
     this.bot.telegram.sendMessage(
       subOrder.user_id,
       "Данный заказ был удален оператором",
