@@ -352,6 +352,7 @@ export class TelegramService {
       throw Error("Message not found");
     }
     const { message_id } = ctx.update.callback_query.message;
+    const user_id = ctx.update.callback_query.from.id;
 
     const order = await this.orderService.getOrderByMessageId(message_id);
     if (!order) {
@@ -363,7 +364,20 @@ export class TelegramService {
     ];
     const keyboard: InlineKeyboardButton[][] = [[...buttons]];
 
-    await this.updateOrderState(order, keyboard);
+    const message = await this.getOrderMessage(order);
+
+    await this.bot.telegram.editMessageText(
+      user_id,
+      message_id,
+      undefined,
+      markdownV2Format(`${message}`),
+      {
+        reply_markup: {
+          inline_keyboard: keyboard,
+        },
+        parse_mode: "MarkdownV2",
+      }
+    );
   }
 
   async deteleSubOrder(subOrder: SubOrderT, order: OrderT) {
@@ -436,7 +450,6 @@ export class TelegramService {
   }
   async updateOrderState(order: OrderT, keyboard: InlineKeyboardButton[][]) {
     const message = await this.getOrderMessage(order);
-
     for (const watcher of order.messages) {
       await this.bot.telegram.editMessageText(
         watcher.user_id,
