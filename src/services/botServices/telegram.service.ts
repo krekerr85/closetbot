@@ -48,8 +48,11 @@ export class TelegramService {
     };
     this.init();
 
-    const cronJob = cron.schedule("0 0 * * *", async () => {
+    const cronJob = cron.schedule("0 */45 * * *", async () => { // TODO сделать каждые 5 минут
       this.checkExpiredOrders();
+    });
+    const cronJob2 = cron.schedule("0 0 * * *", async () => { // TODO сделать каждые 5 минут
+      await this.googleSheetService.init();
     });
   }
 
@@ -277,14 +280,27 @@ export class TelegramService {
     }
 
     await this.updateSubOrderState(subOrder, order, message_id, updatedButtons);
-
-    const buttons: InlineKeyboardButton[] = [
-      { text: "Удалить заказ", callback_data: "delete" },
-    ];
+    const done = await this.checkOrderDone(order);
+    let buttons: InlineKeyboardButton[];
+    if (!done) {
+      buttons = [
+        { text: "Удалить заказ", callback_data: "delete" },
+      ];
+    }else{
+      buttons = []
+    }
     const keyboard: InlineKeyboardButton[][] = [[...buttons]];
     await this.updateOrderState(order, keyboard);
   }
-
+  async checkOrderDone(order : OrderT){
+    const subOrders = await SubOrderModel.find({order_id : order._id})
+    for (const subOrder of subOrders){
+      if(!subOrder.ready_date){
+        return false
+      }
+    }
+    return true
+  }
   async handleDeleteState(ctx: ctxT) {
     if (!ctx.update.callback_query.message) {
       throw Error("Message not found");
@@ -403,7 +419,7 @@ export class TelegramService {
         reply_to_message_id: subOrder.message_id,
       }
     );
-    await SubOrderModel.deleteOne({ subOrder });
+    await SubOrderModel.deleteOne({ _id:subOrder._id });
   }
 
   async deleteOrder(order: OrderT) {
@@ -423,7 +439,7 @@ export class TelegramService {
         }
       );
     }
-    await OrderModel.updateOne({ order }, { $set: { status: "Deleted" } });
+    await OrderModel.updateOne({ _id: order._id }, { $set: { status: "Deleted" } });
   }
 
   async updateSubOrderState(

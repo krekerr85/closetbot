@@ -21,8 +21,8 @@ const App = () => {
     "4-0.jpg": "4-ДСП",
   };
   const closetSizes = [
-        
-      3300, 3200, 3100, 3000, 2900,2800, 2700, 2600, 2500, 2400, 2300,2200,2100,2000, 1900, 1800, 1700, 1600, 1500, 1400, 1300, 1200, 1100
+    3300, 3200, 3100, 3000, 2900, 2800, 2700, 2600, 2500, 2400, 2300, 2200,
+    2100, 2000, 1900, 1800, 1700, 1600, 1500, 1400, 1300, 1200, 1100,
   ];
 
   const [orderNum, setOrderNum] = useState(1);
@@ -63,7 +63,7 @@ const App = () => {
       door_type: selectedImage.alt,
       comment: comment.value,
     };
-    comment.value = '';
+    comment.value = "";
     setOrderList([...orderList, newOrder]);
     setOrderNum(orderNum + 1);
   };
@@ -124,21 +124,20 @@ const App = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const loaderWrapper = document.querySelector(".loader-wrapper");
-        loaderWrapper.style.display = "flex";
         const response = await axios.get(
           `${process.env.REACT_APP_API_BASE_URL}/api/images?color=${selectedColor}&size=${selectedSize}`
         );
         setPreviewImage(response.data.preview);
         setAdditionalImages(response.data.additional);
         setSelectedImage(response.data.additional[0]);
-        loaderWrapper.style.display = "none";
       } catch (error) {
         console.error("Error fetching images:", error);
       }
     };
-
+    const loaderWrapper = document.querySelector(".loader-wrapper");
+    loaderWrapper.style.display = "flex";
     fetchData();
+    loaderWrapper.style.display = "none";
   }, [selectedColor, selectedSize]);
 
   return (
@@ -217,9 +216,16 @@ const App = () => {
         {orderList.map((order, index) => (
           <div className="order_item" key={index}>
             <div className="container_order_num">№{order.order_num}</div>
-            <div className="order_item_info">
-              {`Шкаф ${order.size} (${order.color}) (${order.door_type}) (${order.comment})`}
+            <div className="order_item_info_size">
+              {`Шкаф ${order.size} (${order.color})`}
             </div>
+            <div className="order_item_info_type">
+              {`(${order.door_type})`}
+            </div>
+            <div className="order_item_info_comment">
+              {`(${order.comment})`}
+            </div>
+            
             <button
               className="delete-button"
               onClick={() => handleDeleteOrder(order.order_num)}
