@@ -124,20 +124,23 @@ const App = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const loaderWrapper = document.querySelector(".loader-wrapper");
+        loaderWrapper.style.display = "flex";
         const response = await axios.get(
           `${process.env.REACT_APP_API_BASE_URL}/api/images?color=${selectedColor}&size=${selectedSize}`
         );
         setPreviewImage(response.data.preview);
         setAdditionalImages(response.data.additional);
         setSelectedImage(response.data.additional[0]);
+        setTimeout(() => {
+          loaderWrapper.style.display = "none";
+        }, 1000); 
       } catch (error) {
         console.error("Error fetching images:", error);
       }
     };
-    const loaderWrapper = document.querySelector(".loader-wrapper");
-    loaderWrapper.style.display = "flex";
+
     fetchData();
-    loaderWrapper.style.display = "none";
   }, [selectedColor, selectedSize]);
 
   return (
@@ -219,13 +222,11 @@ const App = () => {
             <div className="order_item_info_size">
               {`Шкаф ${order.size} (${order.color})`}
             </div>
-            <div className="order_item_info_type">
-              {`(${order.door_type})`}
-            </div>
+            <div className="order_item_info_type">{`(${order.door_type})`}</div>
             <div className="order_item_info_comment">
               {`(${order.comment})`}
             </div>
-            
+
             <button
               className="delete-button"
               onClick={() => handleDeleteOrder(order.order_num)}
