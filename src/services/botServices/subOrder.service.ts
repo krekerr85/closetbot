@@ -10,6 +10,7 @@ import { getFormattedDate, markdownV2Format } from "../../utils/functions";
 import { doorTypes } from "../../types/doorType";
 import { UserService } from "./user.service";
 import { GoogleSheetService } from "./google_sheet.service";
+import { sizeDir } from "../../types/sizeType";
 const filesDirectory = path.join(__dirname, "../../../static_files");
 
 export class SubOrderService {
@@ -40,10 +41,14 @@ export class SubOrderService {
     const keyboard: InlineKeyboardButton[][] = [[...buttons]];
     const userSawing = await this.userService.getUserByRole("sawing");
     const userDoor = await this.userService.getUserByRole("door");
-    const addInfo = await this.googleSheetService.getAddTextInfo(order);
-    const price = await this.googleSheetService.getPriceLeyInfo(order);
+    const priceDoc = (await this.googleSheetService.getPriceDoc(
+      order
+    ))!.toObject();
+    const { additional_text, priceLey, price, insert, opening } = priceDoc;
+
+    let messageIds;
     if (userSawing?.user_id) {
-      await bot.telegram.sendMediaGroup(userSawing?.user_id, [
+      const filesMessage = await bot.telegram.sendMediaGroup(userSawing?.user_id, [
         {
           media: { source: file1Data, filename: file1_name },
           type: "document",
@@ -53,10 +58,11 @@ export class SubOrderService {
           type: "document",
         },
       ]);
+      messageIds = filesMessage.map((fileMessage) => fileMessage.message_id);
     }
-    const messageTitleDoor = `№${order_num}\nШкаф ${size} (${color})(${door_type})\n(${comment})(${getFormattedDate(
+    const messageTitleDoor = `№${order_num} (${getFormattedDate(
       new Date()
-    )})\n${addInfo}\n ${price}`;
+    )})\n(${comment})\n${additional_text}\nПроем: ${opening}\nВставка: ${insert}\nЦена: ${price}`;
     const messageTitleSawing = `№${order_num}\nШкаф ${size} (${color})(${door_type})\n(${comment})(${getFormattedDate(
       new Date()
     )})`;
@@ -72,19 +78,23 @@ export class SubOrderService {
           parse_mode: "MarkdownV2",
         }
       );
+
       const newSubSawingOrder = {
         user_id: sawingMessage.chat.id,
         message_id: sawingMessage.message_id,
+        messageIds: messageIds,
         order_id,
         order_type: "sawing",
       };
       await SubOrderModel.create(newSubSawingOrder);
     }
+ 
     if (userDoor?.user_id) {
-      const doorMessage = await bot.telegram.sendMessage(
+      const doorMessage = await bot.telegram.sendPhoto(
         userDoor?.user_id,
-        markdownV2Format(messageTitleDoor),
+        `${process.env.WEB_APP}/images_door/${sizeDir[size]}/${color}/door.jpg`,
         {
+          caption: markdownV2Format(messageTitleDoor),
           reply_markup: {
             inline_keyboard: keyboard,
           },

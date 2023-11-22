@@ -10,7 +10,7 @@ import { Telegraf } from "telegraf";
 import dotenv from "dotenv";
 
 const imagesDirectory = path.join(__dirname, `./static_files/photos/`);
-
+const imagesDoorDirectory = path.join(__dirname, `./static_files/door_photos/`);
 dotenv.config({
   path: path.resolve(__dirname, `.env.${process.env.NODE_ENV}`),
 });
@@ -25,6 +25,7 @@ app.use(express.json());
 app.use(passport.initialize());
 
 app.use("/images", express.static(imagesDirectory));
+app.use("/images_door", express.static(imagesDoorDirectory));
 app.use("/api/images", imagesRoutes);
 
 const bot = new Telegraf(process.env.TELEGRAM_TOKEN!);

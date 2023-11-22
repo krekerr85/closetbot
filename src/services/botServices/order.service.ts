@@ -20,13 +20,14 @@ export class OrderService {
     const keyboard: InlineKeyboardButton[][] = [[...buttons]];
 
     const { size, color, door_type, comment } = order;
-    const order_num = new Date().getTime();
-    const addInfo = await this.googleSheetService.getAddTextInfo(order);
-    const priceLey = await this.googleSheetService.getPriceLeyInfo(order);
-    const price = await this.googleSheetService.getPriceInfo(order);
+    const order_num = await this.googleSheetService.getOrderNum();
+
+    const priceDoc = (await this.googleSheetService.getPriceDoc(order))!.toObject();
+    const { additional_text, priceLey, price, insert, opening } = priceDoc;
+
     const messageTextTitle = `№${order_num}\nШкаф ${size} (${color})(${door_type})\n(${comment})(${getFormattedDate(
       new Date()
-    )})\n${addInfo}\n ${priceLey}`;
+    )})\n${additional_text}\n ${priceLey}`;
     const messageText = `${messageTextTitle}\nРаспил \n❎ \n❎ \nДвери \n❎ \n❎`;
     const userWatchers = await this.userService.getUsersByRole("watcher");
     const messages: TelegramMessageT[] = [];
@@ -50,7 +51,9 @@ export class OrderService {
       order_num,
       order,
       messages,
-      addInfo,
+      additional_text,
+      insert,
+      opening,
       price,
       priceLey,
       title: messageTextTitle,

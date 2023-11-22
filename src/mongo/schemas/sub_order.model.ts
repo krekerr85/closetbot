@@ -11,6 +11,9 @@ const subOrderSchema = new Schema({
     type : Number,
     required : true,
   },
+  messageIds: {
+    type : Array,
+  },
   accepted_date: {
     type: Date,
     default: null,

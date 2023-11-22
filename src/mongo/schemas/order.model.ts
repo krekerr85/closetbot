@@ -24,7 +24,15 @@ const orderSchema = new Schema({
     type: String,
     required: true,
   },
-  addInfo: {
+  additional_text: {
+    type: String,
+    required: true,
+  },
+  insert: {
+    type: String,
+    required: true,
+  },
+  opening: {
     type: String,
     required: true,
   },

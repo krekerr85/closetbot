@@ -16,7 +16,9 @@ export type OrderT = {
   status: string;
   price: number;
   priceLey: string;
-  addInfo: string;
+  additional_text: string;
+  insert: string;
+  opening: string;
 };
 
 export type SubOrderT = {
@@ -26,6 +28,7 @@ export type SubOrderT = {
   accepted_date?: Date | null;
   ready_date?: Date | null;
   order_type: string;
+  messageIds: number[];
   order_id: Types.ObjectId;
 } ;
 

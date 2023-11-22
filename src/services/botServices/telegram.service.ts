@@ -48,10 +48,12 @@ export class TelegramService {
     };
     this.init();
 
-    const cronJob = cron.schedule("0 */45 * * *", async () => { // TODO сделать каждые 5 минут
+    const cronJob = cron.schedule("0 */45 * * *", async () => {
+      // TODO сделать каждые 5 минут
       this.checkExpiredOrders();
     });
-    const cronJob2 = cron.schedule("0 0 * * *", async () => { // TODO сделать каждые 5 минут
+    const cronJob2 = cron.schedule("0 0 * * *", async () => {
+      // TODO сделать каждые 5 минут
       await this.googleSheetService.init();
     });
   }
@@ -283,23 +285,21 @@ export class TelegramService {
     const done = await this.checkOrderDone(order);
     let buttons: InlineKeyboardButton[];
     if (!done) {
-      buttons = [
-        { text: "Удалить заказ", callback_data: "delete" },
-      ];
-    }else{
-      buttons = []
+      buttons = [{ text: "Удалить заказ", callback_data: "delete" }];
+    } else {
+      buttons = [];
     }
     const keyboard: InlineKeyboardButton[][] = [[...buttons]];
     await this.updateOrderState(order, keyboard);
   }
-  async checkOrderDone(order : OrderT){
-    const subOrders = await SubOrderModel.find({order_id : order._id})
-    for (const subOrder of subOrders){
-      if(!subOrder.ready_date){
-        return false
+  async checkOrderDone(order: OrderT) {
+    const subOrders = await SubOrderModel.find({ order_id: order._id });
+    for (const subOrder of subOrders) {
+      if (!subOrder.ready_date) {
+        return false;
       }
     }
-    return true
+    return true;
   }
   async handleDeleteState(ctx: ctxT) {
     if (!ctx.update.callback_query.message) {
@@ -399,18 +399,38 @@ export class TelegramService {
   async deteleSubOrder(subOrder: SubOrderT, order: OrderT) {
     const message = await this.getSubOrderPrevMessage(subOrder, order);
 
-    await this.bot.telegram.editMessageText(
-      subOrder.user_id,
-      subOrder.message_id,
-      undefined,
-      markdownV2Format(`~${message}~`),
-      {
-        reply_markup: {
-          inline_keyboard: [],
-        },
-        parse_mode: "MarkdownV2",
+    if (subOrder.order_type === 'door'){
+      await this.bot.telegram.editMessageCaption(
+        subOrder.user_id,
+        subOrder.message_id,
+        undefined,
+        markdownV2Format(`~${message}~`),
+        {
+          reply_markup: {
+            inline_keyboard: [],
+          },
+          parse_mode: "MarkdownV2",
+        }
+      );
+    }else if (subOrder.order_type === 'sawing'){
+      await this.bot.telegram.editMessageText(
+        subOrder.user_id,
+        subOrder.message_id,
+        undefined,
+        markdownV2Format(`~${message}~`),
+        {
+          reply_markup: {
+            inline_keyboard: [],
+          },
+          parse_mode: "MarkdownV2",
+        }
+      );
+      for (const messageId of subOrder.messageIds) {
+        await this.bot.telegram.deleteMessage(subOrder.user_id,messageId);
       }
-    );
+
+    }
+    
 
     this.bot.telegram.sendMessage(
       subOrder.user_id,
@@ -419,7 +439,7 @@ export class TelegramService {
         reply_to_message_id: subOrder.message_id,
       }
     );
-    await SubOrderModel.deleteOne({ _id:subOrder._id });
+    await SubOrderModel.deleteOne({ _id: subOrder._id });
   }
 
   async deleteOrder(order: OrderT) {
@@ -439,7 +459,10 @@ export class TelegramService {
         }
       );
     }
-    await OrderModel.updateOne({ _id: order._id }, { $set: { status: "Deleted" } });
+    await OrderModel.updateOne(
+      { _id: order._id },
+      { $set: { status: "Deleted" } }
+    );
   }
 
   async updateSubOrderState(
@@ -451,18 +474,34 @@ export class TelegramService {
     const message = await this.getSubOrderPrevMessage(subOrder, order);
 
     await this.subOrderService.updateSubOrder(message_id, subOrder);
-    await this.bot.telegram.editMessageText(
-      subOrder.user_id,
-      message_id,
-      undefined,
-      markdownV2Format(message),
-      {
-        reply_markup: {
-          inline_keyboard: [updatedButtons],
-        },
-        parse_mode: "MarkdownV2",
-      }
-    );
+    if (subOrder.order_type === 'door'){
+      await this.bot.telegram.editMessageCaption(
+        subOrder.user_id,
+        message_id,
+        undefined,
+        markdownV2Format(message),
+        {
+          reply_markup: {
+            inline_keyboard: [updatedButtons],
+          },
+          parse_mode: "MarkdownV2",
+        }
+      );
+    }else{
+      await this.bot.telegram.editMessageText(
+        subOrder.user_id,
+        message_id,
+        undefined,
+        markdownV2Format(message),
+        {
+          reply_markup: {
+            inline_keyboard: [updatedButtons],
+          },
+          parse_mode: "MarkdownV2",
+        }
+      );
+    }
+    
   }
   async updateOrderState(order: OrderT, keyboard: InlineKeyboardButton[][]) {
     const message = await this.getOrderMessage(order);
@@ -512,11 +551,17 @@ export class TelegramService {
         order.date_created
       )})`;
     } else if (subOrder.order_type === "door") {
-      message = `№${order.order_num}\nШкаф ${order.order.size} (${
-        order.order.color
-      })(${order.order.door_type})\n(${order.order.comment})(${getFormattedDate(
+      // message = `№${order.order_num}\nШкаф ${order.order.size} (${
+      //   order.order.color
+      // })(${order.order.door_type})\n(${order.order.comment})(${getFormattedDate(
+      //   order.date_created
+      // )})\n${order.additional_text}\n ${order.priceLey}`;
+
+      message = `№${order.order_num} (${getFormattedDate(
         order.date_created
-      )})\n${order.addInfo}\n ${order.priceLey}`;
+      )})\n(${order.order.comment})\n${order.additional_text}\nПроем: ${
+        order.opening
+      }\nВставка: ${order.insert}\nЦена: ${order.price}`;
     }
 
     return message;
