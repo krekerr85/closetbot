@@ -11,7 +11,7 @@ class TelegramController {
     const orders: OrderDTO[] = req.body;
     try{
       if (!this.telegramService.performersSet()){
-        res.status(500).json({ success: false, message: 'Performers not set'});
+        res.status(505).json({ success: false, message: 'Performers not set'});
       }
       for (const order of orders) {
         await this.telegramService.createOrder(order);

@@ -77,6 +77,9 @@ const App = () => {
         `${process.env.REACT_APP_API_BASE_URL}/api/telegram/create-order`,
         orderList
       );
+      if (res.status == 505) {
+        etNotification("Не установлены исполнители!");
+      }
       
       setOrderList([]);
       setOrderNum(1);
