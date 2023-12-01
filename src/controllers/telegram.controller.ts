@@ -12,6 +12,8 @@ class TelegramController {
     try{
       if (!this.telegramService.performersSet()){
         res.status(505).json({ success: false, message: 'Performers not set'});
+        console.log('not set')
+        return;
       }
       for (const order of orders) {
         await this.telegramService.createOrder(order);
