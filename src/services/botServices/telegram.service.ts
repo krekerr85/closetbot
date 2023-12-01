@@ -152,6 +152,14 @@ export class TelegramService {
     return await handler(ctx);
   }
 
+  async performersSet(){
+    const doorUsers = await UserModel.find({ role: "door" });
+    const sawingUsers = await UserModel.find({ role: "sawing" });
+    if (doorUsers.length === 1 && sawingUsers.length === 1) {
+      return true;
+    }
+    return false;
+  }
   async checkExpiredOrders() {
     try {
       const params = await ParamsModel.findOne(); // Получаем объект параметров из базы данных
