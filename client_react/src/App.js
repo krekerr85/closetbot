@@ -78,7 +78,7 @@ const App = () => {
         orderList
       );
       if (res.status == 505) {
-        etNotification("Не установлены исполнители!");
+        setNotification("Не установлены исполнители!");
       }
       
       setOrderList([]);
