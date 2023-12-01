@@ -155,6 +155,7 @@ export class TelegramService {
   async performersSet(){
     const doorUsers = await UserModel.find({ role: "door" });
     const sawingUsers = await UserModel.find({ role: "sawing" });
+    console.log(doorUsers, sawingUsers)
     if (doorUsers.length === 1 && sawingUsers.length === 1) {
       return true;
     }
