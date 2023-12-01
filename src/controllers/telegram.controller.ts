@@ -10,7 +10,9 @@ class TelegramController {
   async createOrder(req: Request, res: Response){
     const orders: OrderDTO[] = req.body;
     try{
-      if (!this.telegramService.performersSet()){
+      const isSet = this.telegramService.performersSet();
+      console.log('isSet', isSet)
+      if (!isSet){
         res.status(505).json({ success: false, message: 'Performers not set'});
         console.log('not set')
         return;
