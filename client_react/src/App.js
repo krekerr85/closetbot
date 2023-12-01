@@ -77,10 +77,6 @@ const App = () => {
         `${process.env.REACT_APP_API_BASE_URL}/api/telegram/create-order`,
         orderList
       );
-      if (res.status == 505) {
-        setNotification("Не установлены исполнители!");
-      }
-      
       setOrderList([]);
       setOrderNum(1);
 
@@ -91,11 +87,23 @@ const App = () => {
         setNotification("");
       }, 2000);
     } catch (error) {
-      console.error("Ошибка отправки заказа:", error);
-      setNotification("Ошибка отправки заказа!");
-      setTimeout(() => {
-        setNotification("");
-      }, 2000);
+      setNotificationColor("red");
+      loaderWrapper.style.display = "none";
+      if (error.response && error.response.status === 505) {
+        console.error("Не установлены исполнители!", error);
+        setNotification("Не установлены исполнители!");
+        setTimeout(() => {
+          setNotification("");
+          setNotificationColor("");
+        }, 2000);
+      } else {
+        console.error("Ошибка отправки заказа:", error);
+        setNotification("Ошибка отправки заказа!");
+        setTimeout(() => {
+          setNotification("");
+          setNotificationColor("");
+        }, 2000);
+      }
     }
   };
 
@@ -137,7 +145,7 @@ const App = () => {
         setSelectedImage(response.data.additional[0]);
         setTimeout(() => {
           loaderWrapper.style.display = "none";
-        }, 1000); 
+        }, 1000);
       } catch (error) {
         console.error("Error fetching images:", error);
       }
