@@ -87,6 +87,7 @@ const App = () => {
         setNotification("");
       }, 2000);
     } catch (error) {
+      const loaderWrapper = document.querySelector(".loader-wrapper");
       setNotificationColor("red");
       loaderWrapper.style.display = "none";
       if (error.response && error.response.status === 505) {
